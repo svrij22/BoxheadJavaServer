@@ -2,6 +2,8 @@ package nl.hu.bep.shopping.webservices;
 
 import com.jcraft.jsch.JSchException;
 import nl.hu.bep.setup.JerseyConfig;
+import nl.hu.bep.setup.MyServletContextListener;
+import nl.hu.bep.shopping.model.service.Message;
 import nl.hu.bep.shopping.model.service.SessionManager;
 import nl.hu.bep.shopping.model.service.Player;
 import org.json.simple.JSONObject;
@@ -188,7 +190,20 @@ public class GetJson {
         addLog("[INFO] Resetting Data");
         //Check permissions
         if (!Player.checkPerm(request)) return Response.ok("Access Denied").build();
-        Player.setPlayerData(new LinkedList<>());
+
+        try{
+            addLog("[INFO] Attempting to reset players");
+            Player.setPlayerData(new LinkedList<>());
+            addLog("[INFO] Attempting to remove mounted folder");
+            StateWriter.removeObjects();
+            addLog("[INFO] Attempting to reset server");
+            new JerseyConfig();
+            addLog("[INFO] Attempting to reset faux data");
+            MyServletContextListener.setFauxData();
+
+        }catch (Exception e){
+            addLog("[ERROR] "+ Arrays.toString(e.getStackTrace()));
+        }
         return Response.ok("Data reset").build();
     }
 
@@ -241,6 +256,27 @@ public class GetJson {
         if (!Player.checkPerm(request)) return Response.ok("Access Denied").build();
 
         return Response.ok(doRequest("playerData.json")).build();
+    }
+
+    @GET
+    @Path("playerdata")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ArrayList<Player> doCallJavaPlayer(@Context HttpServletRequest request){
+        addLog("[INFO] Getting Player Data Java");
+        //Check permissions
+        //if (!Player.checkPerm(request)) return Response.ok("Access Denied").build();
+        return Player.players;
+    }
+
+    @GET
+    @Path("messages")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response doGetMessages(@Context HttpServletRequest request){
+        addLog("[INFO] Getting Message Data Java");
+        //Check permissions
+        if (!Player.checkPerm(request)) return Response.ok("Access Denied").build();
+        Player player = Player.getPlayerByUsername(request.getHeader("name"));
+        return Response.ok(player.getMessages()).build();
     }
 
     @GET

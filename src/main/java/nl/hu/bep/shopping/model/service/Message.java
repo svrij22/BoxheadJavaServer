@@ -1,29 +1,46 @@
 package nl.hu.bep.shopping.model.service;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class Message {
-    private String title;
-    private String body;
-    private Player sender;
-    private Player recipient;
-    private boolean toAll;
+public class Message implements Serializable{
+    public String title;
+    public String body;
+    public Player sender;
+    public Player recipient;
+    public boolean toAll;
+
     private static ArrayList<Message> messages = new ArrayList<>();
 
-    public Message(String title, Player sender, Player recipient, boolean toAll) {
+    public Message(String title, String body, Player sender, Player recipient) {
         this.title = title;
+        this.body = body;
         this.sender = sender;
         this.recipient = recipient;
-        this.toAll = toAll;
+        this.toAll = false;
     }
 
-    public void setBody(String body){
+    public Message(String title, String body) {
+        this.title = title;
         this.body = body;
+        this.toAll = true;
     }
 
     public static ArrayList<Message> getMessages(){
         return messages;
+    }
+
+    public static ArrayList<Message> getMessagesForAll(){
+        ArrayList<Message> allMessages = new ArrayList<>();
+        for (Message message : Message.getMessages()){
+            if (message.toAll){
+                allMessages.add(message);
+            }
+        }
+        return allMessages;
     }
 
     public static ArrayList<Message> getMessagesByUsername(String username){
@@ -39,6 +56,9 @@ public class Message {
     public void send(){
         if (!Message.getMessages().contains(this)) {
             Message.addMessage(this);
+            if (!toAll){
+                recipient.addMessage(this);
+            }
         }
     }
 

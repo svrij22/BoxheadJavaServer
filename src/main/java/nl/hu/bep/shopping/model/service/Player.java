@@ -1,8 +1,9 @@
 package nl.hu.bep.shopping.model.service;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
-import java.net.http.HttpRequest;
 import java.util.*;
 
 public class Player implements Serializable {
@@ -10,8 +11,11 @@ public class Player implements Serializable {
     public String clientid;
     public LinkedHashMap clientdata;
 
+    private ArrayList<Message> messages = new ArrayList<>();
+
     public static ArrayList<Player> players = new ArrayList<>();
 
+    @JsonIgnore
     public String authkey;
     public String authname;
     private boolean permissions;
@@ -160,5 +164,16 @@ public class Player implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(clientid);
+    }
+
+    @JsonIgnore
+    public ArrayList<Message> getMessages() {
+        ArrayList<Message> returnMsg = messages;
+        returnMsg.addAll(Message.getMessagesForAll());
+        return returnMsg;
+    }
+
+    public void addMessage(Message message) {
+        this.messages.add(message);
     }
 }

@@ -2,6 +2,7 @@ package nl.hu.bep.shopping.webservices;
 
 import nl.hu.bep.shopping.model.service.Player;
 import org.apache.tomcat.jni.Directory;
+import org.apache.tomcat.util.http.fileupload.FileUtils;
 
 import java.io.*;
 import java.util.LinkedList;
@@ -36,10 +37,15 @@ public class StateWriter {
         return null;
     }
 
+    public static void removeObjects() throws IOException {
+        FileUtils.cleanDirectory(new File("mount"));
+    }
+
     public static LinkedList<Player> readObjects() {
         try{
             File yourFile = new File("mount/dataObject.txt");
             if (!yourFile.exists()) return null;
+            System.out.println("[INFO] File exists");
             FileInputStream fis = new FileInputStream(yourFile);
             ObjectInputStream ois = new ObjectInputStream(fis);
             LinkedList<Player> playersTest = (LinkedList<Player>) ois.readObject();

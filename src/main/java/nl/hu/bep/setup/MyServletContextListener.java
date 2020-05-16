@@ -1,5 +1,6 @@
 package nl.hu.bep.setup;
 
+import nl.hu.bep.shopping.model.service.Message;
 import nl.hu.bep.shopping.model.service.Player;
 import nl.hu.bep.shopping.webservices.GetJson;
 
@@ -16,9 +17,17 @@ public class MyServletContextListener implements ServletContextListener {
     public void contextInitialized(ServletContextEvent sce) {
         System.out.println("initializing application");
         GetJson.startServer();
+        setFauxData();
+    }
+
+    public static void setFauxData(){
         Player player = new Player("svrij22", "1234", new LinkedHashMap());
         player.playerSetAuth("crHzIChy6YxU6PbdSTI5ag5M2eNOs5jh4ogPuo4ip0TOwQrbFAk/oPlMy9ze5OxhoZDUP+3vkG/y/6PcAaJCwg==", "svrij22");
         player.setPermissions(true);
+
+        Message message = new Message("Test message", "Test", null, player);
+        new Message("Server message", "test");
+        message.send();
     }
 
     @Override
