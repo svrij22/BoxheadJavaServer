@@ -3,7 +3,6 @@ package nl.hu.bep.shopping.webservices;
 import com.jcraft.jsch.JSchException;
 import nl.hu.bep.setup.JerseyConfig;
 import nl.hu.bep.setup.MyServletContextListener;
-import nl.hu.bep.shopping.model.service.Message;
 import nl.hu.bep.shopping.model.service.SessionManager;
 import nl.hu.bep.shopping.model.service.Player;
 import org.json.simple.JSONObject;
@@ -24,11 +23,11 @@ import java.util.*;
 @Path("game")
 public class GetJson {
 
-    private static StringBuilder strBuild = new StringBuilder();
+    private static StringBuilder logString = new StringBuilder();
 
     public static void startServer() {
         //Reset StringBuilder
-        strBuild = new StringBuilder();
+        logString = new StringBuilder();
 
         addLog("[INFO] Starting Server v1.0.0");
         addLog("[INFO] Attempting Read Server State");
@@ -51,7 +50,7 @@ public class GetJson {
 
         SessionManager.addSession(request.getSession());
 
-        Player player = Player.getPlayerByUsername(name);
+        Player player = Player.getPlayerByAuthName(name);
         if (player == null) return Response.status(422).entity("User doesn't exist").build();
 
         String str = request.getSession().getId() + "\n" + auth;
@@ -119,6 +118,15 @@ public class GetJson {
         addLog("[INFO] Attempting to run shell command");
         //Check permissions
         if (!Player.checkPerm(request)) return Response.ok("Access Denied").build();
+
+
+        //Testing
+        try{
+            return Response.ok("This function has been disabled for security reasons.").build();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
         try{
             SshConnectionManager.runCommand(request.getHeader("command"));
             addLog("[INFO] Done.. returning");
@@ -239,12 +247,12 @@ public class GetJson {
         //Check permissions
         if (!Player.checkPerm(request)) return Response.ok("Access Denied").build();
 
-        return Response.ok(strBuild.toString()).build();
+        return Response.ok(logString.toString()).build();
     }
 
     public static void addLog(String str){
         System.out.println(str);
-        strBuild.append(str + "\n");
+        logString.append(str + "\n");
     }
 
     @GET
@@ -275,7 +283,7 @@ public class GetJson {
         addLog("[INFO] Getting Message Data Java");
         //Check permissions
         if (!Player.checkPerm(request)) return Response.ok("Access Denied").build();
-        Player player = Player.getPlayerByUsername(request.getHeader("name"));
+        Player player = Player.getPlayerByAuthName(request.getHeader("name"));
         return Response.ok(player.getMessages()).build();
     }
 
@@ -341,7 +349,7 @@ public class GetJson {
     @GET
     @Path("playerUpdate")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response doPlayerUpdate(@Context HttpServletRequest request){
+    public Response doPlayerJavaUpdate(@Context HttpServletRequest request){
         addLog("[INFO] Updating Player Info");
 
         //Check permissions
@@ -391,7 +399,7 @@ public class GetJson {
     @GET
     @Path("player{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response doSocketGet(@PathParam("id") String id, @Context HttpServletRequest request){
+    public Response doPlayerGetById(@PathParam("id") String id, @Context HttpServletRequest request){
         addLog("[INFO] Getting Player Info " + id);
         //Check permissions
         if (!Player.checkPerm(request)) return Response.ok("Access Denied").build();
@@ -416,7 +424,7 @@ public class GetJson {
     @GET
     @Path("socket{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response doSocketGet(@PathParam("id") int id, @Context HttpServletRequest request){
+    public Response doSocketGetById(@PathParam("id") int id, @Context HttpServletRequest request){
         addLog("[INFO] Getting socket with ID " + id);
         //Check permissions
         if (!Player.checkPerm(request)) return Response.ok("Access Denied").build();

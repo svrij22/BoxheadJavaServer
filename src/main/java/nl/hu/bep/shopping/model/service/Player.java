@@ -105,7 +105,7 @@ public class Player implements Serializable {
     }
 
     public static boolean checkPerm(String username, String auth){
-        Player player = Player.getPlayerByUsername(username);
+        Player player = Player.getPlayerByAuthName(username);
         if (player == null) return false;
         if (player.doAuth(auth, username)){
             return (player.permissions);
@@ -117,7 +117,7 @@ public class Player implements Serializable {
         String name = request.getHeader("name");
         String auth = request.getHeader("authkey");
 
-        Player player = Player.getPlayerByUsername(name);
+        Player player = Player.getPlayerByAuthName(name);
         if (player == null) {
             System.out.println("[WARNING] Access Denied");
             return false;
@@ -130,10 +130,10 @@ public class Player implements Serializable {
     }
 
     public static boolean usernameExists(String name){
-        return (Player.getPlayerByUsername(name) != null);
+        return (Player.getPlayerByAuthName(name) != null);
     }
 
-    public static Player getPlayerByUsername(String nm) {
+    public static Player getPlayerByAuthName(String nm) {
         for (Player player : players){
             if (player.authname != null) {
                 if (player.authname.equals(nm)) {

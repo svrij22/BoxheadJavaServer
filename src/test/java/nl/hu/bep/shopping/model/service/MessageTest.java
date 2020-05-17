@@ -13,7 +13,7 @@ class MessageTest {
     void setUp() {
         Player player1 = new Player("User1", "1234", new LinkedHashMap());
         Player player2 = new Player("User2", "1234", new LinkedHashMap());
-        Message message = new Message("Test message", "Test body", player1, player2, false);
+        Message message = new Message("Test message", "Test body", player1, player2);
     }
 
     @Test
