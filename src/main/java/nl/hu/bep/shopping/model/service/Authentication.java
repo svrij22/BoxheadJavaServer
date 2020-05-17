@@ -2,7 +2,9 @@ package nl.hu.bep.shopping.model.service;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public class Authentication {
+import java.io.Serializable;
+
+public class Authentication implements Serializable {
 
     @JsonIgnore
     public String authkey;

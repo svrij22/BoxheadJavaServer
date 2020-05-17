@@ -111,13 +111,13 @@ public class Player implements Serializable {
 
     public static boolean checkPerm(String username, String auth){
         Player player = Player.getPlayerByAuthName(username);
-        if (player == null) {
-            System.out.println("[WARNING] Access Denied");
-            return false;
+
+        if (player != null) {
+            if (player.getAuth().doAuth(auth, username)){
+                return (player.getAuth().hasPerm());
+            }
         }
-        if (player.getAuth().doAuth(auth, username)){
-            return (player.getAuth().hasPerm());
-        }
+
         System.out.println("[WARNING] Access Denied");
         return false;
     }
