@@ -12,13 +12,8 @@ public class Player implements Serializable {
     public LinkedHashMap clientdata;
 
     private ArrayList<Message> messages = new ArrayList<>();
-
     public static ArrayList<Player> players = new ArrayList<>();
-
-    @JsonIgnore
-    public String authkey;
-    public String authname;
-    private boolean permissions;
+    private Authentication authentication;
 
     public Player(String username, String clientid, LinkedHashMap clientdata) {
         this.username = username;
@@ -59,24 +54,23 @@ public class Player implements Serializable {
     }
 
     public boolean hasAuth(){
-        return (this.authkey != null);
+        return (this.authentication != null);
     }
 
-    public boolean doAuth(String authkey, String username){
-
-        System.out.println("[INFO] P Name " + this.authkey);
-        System.out.println("[INFO] P Auth " + this.authname);
-
-        System.out.println("[INFO] Match Name " + this.authname.equals(username));
-        System.out.println("[INFO] Match Auth " + this.authkey.equals(authkey));
-
-        return (this.authkey.equals(authkey) && this.authname.equals(username));
+    public Authentication getAuth(){
+        return authentication;
     }
 
-    public boolean playerSetAuth(String authkey, String username){
-        if (this.authkey == null){
-            this.authkey = authkey;
-            this.authname = username;
+    public boolean doAuth(String auth, String name){
+        if (this.hasAuth()){
+            return this.getAuth().doAuth(auth, name);
+        }
+        return false;
+    }
+
+    public boolean setAuth(Authentication authentication){
+        if (this.authentication == null){
+            this.authentication = authentication;
             return true;
         }
         return false;
@@ -100,43 +94,10 @@ public class Player implements Serializable {
         return null;
     }
 
-    public void setPermissions(boolean perm){
-        this.permissions = perm;
-    }
-
-    public static boolean checkPerm(String username, String auth){
-        Player player = Player.getPlayerByAuthName(username);
-        if (player == null) return false;
-        if (player.doAuth(auth, username)){
-            return (player.permissions);
-        }
-        return false;
-    }
-
-    public static boolean checkPerm(HttpServletRequest request){
-        String name = request.getHeader("name");
-        String auth = request.getHeader("authkey");
-
-        Player player = Player.getPlayerByAuthName(name);
-        if (player == null) {
-            System.out.println("[WARNING] Access Denied");
-            return false;
-        }
-        if (player.doAuth(auth, name)){
-            return (player.permissions);
-        }
-        System.out.println("[WARNING] Access Denied");
-        return false;
-    }
-
-    public static boolean usernameExists(String name){
-        return (Player.getPlayerByAuthName(name) != null);
-    }
-
     public static Player getPlayerByAuthName(String nm) {
         for (Player player : players){
-            if (player.authname != null) {
-                if (player.authname.equals(nm)) {
+            if (player.hasAuth()) {
+                if (player.getAuth().getName().equals(nm)) {
                     return player;
                 }
             }
@@ -144,13 +105,38 @@ public class Player implements Serializable {
         return null;
     }
 
+    public static boolean usernameExists(String name){
+        return (Player.getPlayerByAuthName(name) != null);
+    }
+
+    public static boolean checkPerm(String username, String auth){
+        Player player = Player.getPlayerByAuthName(username);
+        if (player == null) {
+            System.out.println("[WARNING] Access Denied");
+            return false;
+        }
+        if (player.getAuth().doAuth(auth, username)){
+            return (player.getAuth().hasPerm());
+        }
+        System.out.println("[WARNING] Access Denied");
+        return false;
+    }
+
+    public static boolean checkPerm(HttpServletRequest request){
+        String name = request.getHeader("name");
+        String auth = request.getHeader("authkey");
+        return Player.checkPerm(name, auth);
+    }
+
     @Override
     public String toString() {
         return "Player{" +
-                "username='" + username +
-                ", clientid='" + clientid +
+                "username='" + username + '\'' +
+                ", clientid='" + clientid + '\'' +
                 ", clientdata=" + clientdata +
-                "}\n";
+                ", messages=" + messages +
+                ", authentication=" + authentication +
+                '}';
     }
 
     @Override

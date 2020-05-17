@@ -62,6 +62,10 @@ public class Message implements Serializable{
         }
     }
 
+    public static void clearAllMessages(){
+        messages.clear();
+    }
+
     private static void addMessage(Message message) {
         messages.add(message);
     }
@@ -72,8 +76,7 @@ public class Message implements Serializable{
         if (o == null || getClass() != o.getClass()) return false;
         Message message = (Message) o;
         return title.equals(message.title) &&
-                body.equals(message.body) &&
-                sender.equals(message.sender);
+                body.equals(message.body);
     }
 
     @Override

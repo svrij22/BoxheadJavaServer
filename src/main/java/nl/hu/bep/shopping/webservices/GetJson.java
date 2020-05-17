@@ -3,6 +3,7 @@ package nl.hu.bep.shopping.webservices;
 import com.jcraft.jsch.JSchException;
 import nl.hu.bep.setup.JerseyConfig;
 import nl.hu.bep.setup.MyServletContextListener;
+import nl.hu.bep.shopping.model.service.Authentication;
 import nl.hu.bep.shopping.model.service.SessionManager;
 import nl.hu.bep.shopping.model.service.Player;
 import org.json.simple.JSONObject;
@@ -81,7 +82,7 @@ public class GetJson {
         Player player = Player.getPlayerById(regkey);
         if (player == null) return Response.status(404).entity("Player not found").build();
 
-        if (player.playerSetAuth(auth, name)) {
+        if (player.setAuth(new Authentication(auth, name, false))) {
             addLog("[SUCCESS] Player Registered");
             return Response.ok("Registered!").build();
         }
