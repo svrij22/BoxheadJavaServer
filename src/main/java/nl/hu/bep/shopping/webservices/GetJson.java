@@ -4,7 +4,6 @@ import com.jcraft.jsch.JSchException;
 import nl.hu.bep.setup.JerseyConfig;
 import nl.hu.bep.setup.MyServletContextListener;
 import nl.hu.bep.shopping.model.service.Authentication;
-import nl.hu.bep.shopping.model.service.SessionManager;
 import nl.hu.bep.shopping.model.service.Player;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -48,8 +47,6 @@ public class GetJson {
 
         addLog("[INFO] Name " + name);
         addLog("[INFO] Auth " + auth);
-
-        SessionManager.addSession(request.getSession());
 
         Player player = Player.getPlayerByAuthName(name);
         if (player == null) return Response.status(422).entity("User doesn't exist").build();

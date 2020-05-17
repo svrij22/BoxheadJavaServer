@@ -10,11 +10,20 @@ public class Authentication implements Serializable {
     public String authkey;
     public String authname;
     private boolean permissions;
+    private Session session;
 
     public Authentication(String authkey, String authname, boolean permissions) {
         this.authkey = authkey;
         this.authname = authname;
         this.permissions = permissions;
+    }
+
+    public Session getSession() {
+        return session;
+    }
+
+    public void setSession(Session session) {
+        this.session = session;
     }
 
     public boolean doAuth(String authkey, String username){
