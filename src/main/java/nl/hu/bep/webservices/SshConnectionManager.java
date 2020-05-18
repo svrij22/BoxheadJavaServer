@@ -1,4 +1,4 @@
-package nl.hu.bep.shopping.webservices;
+package nl.hu.bep.webservices;
 
 import com.jcraft.jsch.*;
 

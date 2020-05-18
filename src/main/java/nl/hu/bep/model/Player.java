@@ -1,12 +1,14 @@
-package nl.hu.bep.shopping.model.service;
+package nl.hu.bep.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import javax.security.auth.Subject;
 import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
+import java.security.Principal;
 import java.util.*;
 
-public class Player implements Serializable {
+public class Player implements Serializable, Principal {
     public String username;
     public String clientid;
     public LinkedHashMap clientdata;
@@ -53,29 +55,6 @@ public class Player implements Serializable {
         }
     }
 
-    public boolean hasAuth(){
-        return (this.authentication != null);
-    }
-
-    public Authentication getAuth(){
-        return authentication;
-    }
-
-    public boolean doAuth(String auth, String name){
-        if (this.hasAuth()){
-            return this.getAuth().doAuth(auth, name);
-        }
-        return false;
-    }
-
-    public boolean setAuth(Authentication authentication){
-        if (this.authentication == null){
-            this.authentication = authentication;
-            return true;
-        }
-        return false;
-    }
-
     public static Player getPlayerById(String id) {
         for (Player player : Player.players){
             if (player.clientid.equals(id)) {
@@ -105,27 +84,42 @@ public class Player implements Serializable {
         return null;
     }
 
-    public static boolean usernameExists(String name){
-        return (Player.getPlayerByAuthName(name) != null);
+    public boolean hasAuth(){
+        return (this.authentication != null);
     }
 
-    public static boolean checkPerm(String username, String auth){
-        Player player = Player.getPlayerByAuthName(username);
+    public Authentication getAuth(){
+        return authentication;
+    }
 
-        if (player != null) {
-            if (player.getAuth().doAuth(auth, username)){
-                return (player.getAuth().hasPerm());
-            }
+    public boolean doAuth(String auth, String name){
+        if (this.hasAuth()){
+            return this.getAuth().doAuth(auth, name);
         }
-
-        System.out.println("[WARNING] Access Denied");
         return false;
     }
 
-    public static boolean checkPerm(HttpServletRequest request){
-        String name = request.getHeader("name");
-        String auth = request.getHeader("authkey");
-        return Player.checkPerm(name, auth);
+    public boolean setAuth(Authentication authentication){
+        if (this.authentication == null){
+            this.authentication = authentication;
+            return true;
+        }
+        return false;
+    }
+
+    public String getSessionToken() {
+        Authentication auth = this.getAuth();
+        if (auth != null){
+            Session session = auth.getSession();
+            if (session != null) return session.getSessionToken();
+            auth.setSession(new Session());
+            return auth.getSession().getSessionToken();
+        }
+        return null;
+    }
+
+    public static boolean usernameExists(String name){
+        return (Player.getPlayerByAuthName(name) != null);
     }
 
     @Override
@@ -150,6 +144,17 @@ public class Player implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(clientid);
+    }
+
+    @Override
+    public String getName() {
+        if (!this.hasAuth()) return null;
+        return this.getAuth().authname;
+    }
+
+    @Override
+    public boolean implies(Subject subject) {
+        return false;
     }
 
     @JsonIgnore

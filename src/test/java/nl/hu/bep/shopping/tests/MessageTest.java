@@ -1,7 +1,7 @@
 package nl.hu.bep.shopping.tests;
 
-import nl.hu.bep.shopping.model.service.Message;
-import nl.hu.bep.shopping.model.service.Player;
+import nl.hu.bep.model.Message;
+import nl.hu.bep.model.Player;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

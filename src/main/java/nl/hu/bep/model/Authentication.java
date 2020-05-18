@@ -1,4 +1,4 @@
-package nl.hu.bep.shopping.model.service;
+package nl.hu.bep.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -8,17 +8,23 @@ public class Authentication implements Serializable {
 
     @JsonIgnore
     public String authkey;
+    @JsonIgnore
+    private String role;
+
     public String authname;
-    private boolean permissions;
+    @JsonIgnore
     private Session session;
 
-    public Authentication(String authkey, String authname, boolean permissions) {
+    public Authentication(String authkey, String authname, String role) {
         this.authkey = authkey;
         this.authname = authname;
-        this.permissions = permissions;
+        this.role = role;
     }
 
+    @JsonIgnore
     public Session getSession() {
+        if (session == null) return null;
+        if (!session.isValid()) return null;
         return session;
     }
 
@@ -30,15 +36,12 @@ public class Authentication implements Serializable {
         return (this.authkey.equals(authkey) && this.authname.equals(username));
     }
 
-    public void setPermissions(boolean perm){
-        this.permissions = perm;
+    @JsonIgnore
+    public String getRole(){
+        return this.role;
     }
 
     public String getName() {
         return authname;
-    }
-
-    public boolean hasPerm() {
-        return permissions;
     }
 }

@@ -1,7 +1,6 @@
-package nl.hu.bep.shopping.webservices;
+package nl.hu.bep.webservices;
 
-import nl.hu.bep.shopping.model.service.Player;
-import org.apache.tomcat.jni.Directory;
+import nl.hu.bep.model.Player;
 import org.apache.tomcat.util.http.fileupload.FileUtils;
 
 import java.io.*;

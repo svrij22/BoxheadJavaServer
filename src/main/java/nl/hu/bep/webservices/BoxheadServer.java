@@ -1,31 +1,41 @@
-package nl.hu.bep.shopping.webservices;
+package nl.hu.bep.webservices;
 
 import com.jcraft.jsch.JSchException;
+import nl.hu.bep.model.Session;
 import nl.hu.bep.setup.JerseyConfig;
 import nl.hu.bep.setup.MyServletContextListener;
-import nl.hu.bep.shopping.model.service.Authentication;
-import nl.hu.bep.shopping.model.service.Player;
+import nl.hu.bep.model.Authentication;
+import nl.hu.bep.model.Player;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.ContainerFactory;
 import org.json.simple.parser.JSONParser;
 
+import javax.annotation.security.DeclareRoles;
+import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
+import javax.swing.*;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.*;
+import java.util.Timer;
+
+import static nl.hu.bep.webservices.BoxheadServer.addLog;
 
 @Path("game")
-public class GetJson {
+@DeclareRoles({"User", "Admin"})
+public class BoxheadServer {
 
     private static StringBuilder logString = new StringBuilder();
 
-    public static void startServer() {
+    public static void startServer(){
         //Reset StringBuilder
         logString = new StringBuilder();
 
@@ -35,41 +45,34 @@ public class GetJson {
         LinkedList<Player> players = StateWriter.readObjects();
         Player.setPlayerData(players);
 
+        addLog("[INFO] Setting Update Timer");
+        Timer timer = new Timer();
+        timer.schedule(new doPlayerUpdateTimer(), 0, 30 * 1000);
     }
 
     @GET
     @Path("login")
+    @PermitAll
     @Produces(MediaType.APPLICATION_JSON)
-    public Response doLogin(@Context HttpServletRequest request){
-
-        String name = request.getHeader("name");
-        String auth = request.getHeader("authkey");
-
-        addLog("[INFO] Name " + name);
-        addLog("[INFO] Auth " + auth);
-
-        Player player = Player.getPlayerByAuthName(name);
-        if (player == null) return Response.status(422).entity("User doesn't exist").build();
-
-        String str = request.getSession().getId() + "\n" + auth;
-        if (player.doAuth(auth, name)) return Response.ok(str).build();
-        else return Response.status(409).build();
+    public Response doLogin(@Context HttpServletRequest request, @Context SecurityContext securityContext){
+        Player player = (Player) securityContext.getUserPrincipal();
+        if (player != null) {
+            String token = player.getSessionToken();
+            return Response.ok(token).build();
+        }
+        return Response.status(409).build();
     }
 
     @GET
     @Path("register")
+    @PermitAll
     @Produces(MediaType.APPLICATION_JSON)
     public Response doReg(@Context HttpServletRequest request){
-
         addLog("[INFO] Registering user");
 
-        String name = request.getHeader("name");
-        String auth = request.getHeader("authkey");
-        String regkey = request.getHeader("regkey");
-
-        addLog("[INFO] Name " + name);
-        addLog("[INFO] Auth " + auth);
-        addLog("[INFO] Regkey " + regkey);
+        String name = "";
+        String auth = "";
+        String regkey = "";
 
         if (name.length() < 4) return Response.status(428).entity("Fill in info").build();
         if (auth.length() < 10) return Response.status(428).entity("Fill in info").build();
@@ -79,7 +82,7 @@ public class GetJson {
         Player player = Player.getPlayerById(regkey);
         if (player == null) return Response.status(404).entity("Player not found").build();
 
-        if (player.setAuth(new Authentication(auth, name, false))) {
+        if (player.setAuth(new Authentication(auth, name, "User"))) {
             addLog("[SUCCESS] Player Registered");
             return Response.ok("Registered!").build();
         }
@@ -88,21 +91,19 @@ public class GetJson {
 
     @GET
     @Path("registered")
+    @RolesAllowed("Admin")
     @Produces(MediaType.APPLICATION_JSON)
     public Response doGetAllReg(@Context HttpServletRequest request){
         addLog("[INFO] Requesting registered players");
-        //Check permissions
-        if (!Player.checkPerm(request)) return Response.ok("Access Denied").build();
         return Response.ok(Player.getRegisteredPlayers()).build();
     }
 
     @GET
     @Path("startshell")
+    @RolesAllowed("Admin")
     @Produces(MediaType.APPLICATION_JSON)
     public Response doStartShell(@Context HttpServletRequest request) throws JSchException, IOException {
         addLog("[INFO] Attempting to start shell");
-        //Check permissions
-        if (!Player.checkPerm(request)) return Response.ok("Access Denied").build();
 
         SshConnectionManager.runCommand("uname -v");
         addLog("[INFO] Done.. doing return");
@@ -111,12 +112,10 @@ public class GetJson {
 
     @GET
     @Path("shellexec")
+    @RolesAllowed("Admin")
     @Produces(MediaType.APPLICATION_JSON)
     public Response doExecShell(@Context HttpServletRequest request){
         addLog("[INFO] Attempting to run shell command");
-        //Check permissions
-        if (!Player.checkPerm(request)) return Response.ok("Access Denied").build();
-
 
         //Testing
         try{
@@ -136,11 +135,10 @@ public class GetJson {
 
     @GET
     @Path("shell")
+    @RolesAllowed("Admin")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getShellOutput(@Context HttpServletRequest request){
         addLog("[INFO] Attempting to get shell output");
-        //Check permissions
-        if (!Player.checkPerm(request)) return Response.ok("Access Denied").build();
 
         try{
             return Response.ok(SshConnectionManager.getOutput()).build();
@@ -151,11 +149,10 @@ public class GetJson {
 
     @GET
     @Path("shellreset")
+    @RolesAllowed("Admin")
     @Produces(MediaType.APPLICATION_JSON)
     public Response doShellReset(@Context HttpServletRequest request){
         addLog("[INFO] Attempting to reset shell");
-        //Check permissions
-        if (!Player.checkPerm(request)) return Response.ok("Access Denied").build();
 
         try{
             SshConnectionManager.close();
@@ -169,33 +166,29 @@ public class GetJson {
 
     @GET
     @Path("info")
+    @RolesAllowed("Admin")
     @Produces(MediaType.APPLICATION_JSON)
     public Response doCallInfo(@Context HttpServletRequest request){
         addLog("[INFO] Getting Server Info");
-        //Check permissions
-        if (!Player.checkPerm(request)) return Response.ok("Access Denied").build();
-
         return Response.ok(doRequest("dataFile.json")).build();
     }
 
     @GET
     @Path("resetserver")
+    @RolesAllowed("Admin")
     @Produces(MediaType.APPLICATION_JSON)
     public Response doReset(@Context HttpServletRequest request){
         addLog("[INFO] Resetting Server");
-        //Check permissions
-        if (!Player.checkPerm(request)) return Response.ok("Access Denied").build();
         new JerseyConfig();
         return Response.ok("Server reset").build();
     }
 
     @GET
     @Path("resetdata")
+    @RolesAllowed("Admin")
     @Produces(MediaType.APPLICATION_JSON)
     public Response doResetData(@Context HttpServletRequest request){
         addLog("[INFO] Resetting Data");
-        //Check permissions
-        if (!Player.checkPerm(request)) return Response.ok("Access Denied").build();
 
         try{
             addLog("[INFO] Attempting to reset players");
@@ -215,23 +208,19 @@ public class GetJson {
 
     @GET
     @Path("save")
+    @RolesAllowed("Admin")
     @Produces(MediaType.APPLICATION_JSON)
     public Response trySave(@Context HttpServletRequest request){
         addLog("[INFO] Attempting to save");
-        //Check permissions
-        if (!Player.checkPerm(request)) return Response.ok("Access Denied").build();
-
         return Response.ok(StateWriter.writeObjects()).build();
     }
 
     @GET
     @Path("read")
+    @RolesAllowed("Admin")
     @Produces(MediaType.APPLICATION_JSON)
     public Response tryRead(@Context HttpServletRequest request){
         addLog("[INFO] Attempting to read");
-        //Check permissions
-        if (!Player.checkPerm(request)) return Response.ok("Access Denied").build();
-
         LinkedList players = StateWriter.readObjects();
         Player.setPlayerData(players);
         return Response.ok(players).build();
@@ -239,12 +228,10 @@ public class GetJson {
 
     @GET
     @Path("serverlog")
+    @RolesAllowed("Admin")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getServerLog(@Context HttpServletRequest request){
         addLog("[INFO] Getting Server Log");
-        //Check permissions
-        if (!Player.checkPerm(request)) return Response.ok("Access Denied").build();
-
         return Response.ok(logString.toString()).build();
     }
 
@@ -255,43 +242,42 @@ public class GetJson {
 
     @GET
     @Path("player")
+    @RolesAllowed("Admin")
     @Produces(MediaType.APPLICATION_JSON)
     public Response doCallPlayer(@Context HttpServletRequest request){
         addLog("[INFO] Getting Player Data");
-        //Check permissions
-        if (!Player.checkPerm(request)) return Response.ok("Access Denied").build();
 
         return Response.ok(doRequest("playerData.json")).build();
     }
 
     @GET
     @Path("playerdata")
+    @RolesAllowed("Admin")
     @Produces(MediaType.APPLICATION_JSON)
     public ArrayList<Player> doCallJavaPlayer(@Context HttpServletRequest request){
         addLog("[INFO] Getting Player Data Java");
-        //Check permissions
-        //if (!Player.checkPerm(request)) return Response.ok("Access Denied").build();
         return Player.players;
     }
 
     @GET
     @Path("messages")
+    @PermitAll
     @Produces(MediaType.APPLICATION_JSON)
-    public Response doGetMessages(@Context HttpServletRequest request){
+    public Response doGetMessages(@Context HttpServletRequest request, @Context SecurityContext securityContext){
         addLog("[INFO] Getting Message Data Java");
-        //Check permissions
-        if (!Player.checkPerm(request)) return Response.ok("Access Denied").build();
-        Player player = Player.getPlayerByAuthName(request.getHeader("name"));
-        return Response.ok(player.getMessages()).build();
+        Player player = (Player) securityContext.getUserPrincipal();
+        if (player != null) {
+            return Response.ok(player.getMessages()).build();
+        }
+        return Response.status(409).build();
     }
 
     @GET
     @Path("json")
+    @RolesAllowed("Admin")
     @Produces(MediaType.APPLICATION_JSON)
     public Response doJsonParse(@Context HttpServletRequest request){
         addLog("[INFO] Getting Player Json");
-        //Check permissions
-        if (!Player.checkPerm(request)) return Response.ok("Access Denied").build();
 
         String req = doRequest("dataFile.json");
         try{
@@ -306,11 +292,10 @@ public class GetJson {
 
     @GET
     @Path("parsed")
+    @RolesAllowed("Admin")
     @Produces(MediaType.APPLICATION_JSON)
     public Response doParsedGet(@Context HttpServletRequest request){
         addLog("[INFO] Getting Parsed Info");
-        //Check permissions
-        if (!Player.checkPerm(request)) return Response.ok("Access Denied").build();
 
         String req = doRequest("dataFile.json");
         StringBuilder stringBuilder = new StringBuilder();
@@ -327,11 +312,10 @@ public class GetJson {
 
     @GET
     @Path("sockets")
+    @RolesAllowed("Admin")
     @Produces(MediaType.APPLICATION_JSON)
     public Response doSocketGet(@Context HttpServletRequest request){
         addLog("[INFO] Getting Sockets");
-        //Check permissions
-        if (!Player.checkPerm(request)) return Response.ok("Access Denied").build();
 
         String req = doRequest("dataFile.json");
         Map parsed = parseJson(req);
@@ -346,12 +330,10 @@ public class GetJson {
 
     @GET
     @Path("playerUpdate")
+    @RolesAllowed("Admin")
     @Produces(MediaType.APPLICATION_JSON)
     public Response doPlayerJavaUpdate(@Context HttpServletRequest request){
         addLog("[INFO] Updating Player Info");
-
-        //Check permissions
-        if (!Player.checkPerm(request)) return Response.ok("Access Denied").build();
 
         //Do player update
         try{
@@ -363,7 +345,8 @@ public class GetJson {
         }
     }
 
-    public void doPlayerUpdate() throws Exception{
+    public static void doPlayerUpdate() throws Exception{
+
         String req = doRequest("playerData.json");
         StringBuilder stringBuilder = new StringBuilder();
         jsonFactory containerFactory = new jsonFactory();
@@ -381,26 +364,19 @@ public class GetJson {
 
     @GET
     @Path("players")
+    @RolesAllowed("Admin")
     @Produces(MediaType.APPLICATION_JSON)
     public Response doGetPlayers(@Context HttpServletRequest request){
         addLog("[INFO] Getting Players Info ");
-        //Check permissions
-        if (!Player.checkPerm(request)) return Response.ok("Access Denied").build();
-
-        StringBuilder stringBuilder = new StringBuilder("");
-        for (Player player : Player.players){
-            stringBuilder.append(player);
-        }
-        return Response.ok(stringBuilder.toString()).build();
+        return Response.ok(Player.players).build();
     }
 
     @GET
     @Path("player{id}")
+    @RolesAllowed("Admin")
     @Produces(MediaType.APPLICATION_JSON)
     public Response doPlayerGetById(@PathParam("id") String id, @Context HttpServletRequest request){
         addLog("[INFO] Getting Player Info " + id);
-        //Check permissions
-        if (!Player.checkPerm(request)) return Response.ok("Access Denied").build();
 
         String req = doRequest("playerData.json");
         try {
@@ -421,11 +397,10 @@ public class GetJson {
 
     @GET
     @Path("socket{id}")
+    @RolesAllowed("Admin")
     @Produces(MediaType.APPLICATION_JSON)
     public Response doSocketGetById(@PathParam("id") int id, @Context HttpServletRequest request){
         addLog("[INFO] Getting socket with ID " + id);
-        //Check permissions
-        if (!Player.checkPerm(request)) return Response.ok("Access Denied").build();
 
         String req = doRequest("dataFile.json");
         StringBuilder stringBuilder = new StringBuilder();
@@ -456,7 +431,7 @@ public class GetJson {
         }
     }
 
-    public String doRequest(String urladd){
+    public static String doRequest(String urladd){
         HttpURLConnection connection = null;
         try {
             addLog("[INFO] Trying HTTP request for " + urladd);
@@ -515,5 +490,16 @@ class jsonFactory implements ContainerFactory {
     @Override
     public List creatArrayContainer() {
         return new LinkedList<>();
+    }
+}
+
+class doPlayerUpdateTimer extends TimerTask {
+    public void run() {
+        try {
+            addLog("[INFO] Doing Timer Task");
+            BoxheadServer.doPlayerUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

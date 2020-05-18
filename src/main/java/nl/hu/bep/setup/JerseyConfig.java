@@ -1,18 +1,17 @@
 package nl.hu.bep.setup;
 
-import nl.hu.bep.shopping.model.service.Player;
-import nl.hu.bep.shopping.webservices.CORSFilter;
-import nl.hu.bep.shopping.webservices.GetJson;
+import nl.hu.bep.webservices.CORSFilter;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 
 import javax.ws.rs.ApplicationPath;
-import java.util.LinkedHashMap;
 
 @ApplicationPath("restservices")
 public class JerseyConfig extends ResourceConfig {
 
     public JerseyConfig() {
         this.register(new CORSFilter());
-        packages("nl.hu.bep.shopping.webservices");
+        this.register(RolesAllowedDynamicFeature.class);
+        packages("nl.hu.bep.webservices");
     }
 }

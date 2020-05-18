@@ -1,6 +1,4 @@
-package nl.hu.bep.shopping.model.service;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
+package nl.hu.bep.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
