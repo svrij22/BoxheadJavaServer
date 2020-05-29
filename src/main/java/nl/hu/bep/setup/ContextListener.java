@@ -11,7 +11,7 @@ import javax.servlet.annotation.WebListener;
 import java.util.LinkedHashMap;
 
 @WebListener
-public class MyServletContextListener implements ServletContextListener {
+public class ContextListener implements ServletContextListener {
 
 
     @Override

@@ -1,9 +1,8 @@
 package nl.hu.bep.webservices;
 
 import com.jcraft.jsch.JSchException;
-import nl.hu.bep.model.Session;
 import nl.hu.bep.setup.JerseyConfig;
-import nl.hu.bep.setup.MyServletContextListener;
+import nl.hu.bep.setup.ContextListener;
 import nl.hu.bep.model.Authentication;
 import nl.hu.bep.model.Player;
 import org.json.simple.JSONObject;
@@ -15,12 +14,8 @@ import javax.annotation.security.DeclareRoles;
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
-import javax.swing.*;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.SecurityContext;
+import javax.ws.rs.core.*;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -48,6 +43,13 @@ public class BoxheadServer {
         addLog("[INFO] Setting Update Timer");
         Timer timer = new Timer();
         timer.schedule(new doPlayerUpdateTimer(), 0, 30 * 1000);
+    }
+
+    @GET
+    @PermitAll
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response doTest(){
+        return Response.ok("test").build();
     }
 
     @GET
@@ -93,7 +95,7 @@ public class BoxheadServer {
     @Path("registered")
     @RolesAllowed("Admin")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response doGetAllReg(@Context HttpServletRequest request){
+    public Response doGetAllReg(){
         addLog("[INFO] Requesting registered players");
         return Response.ok(Player.getRegisteredPlayers()).build();
     }
@@ -114,7 +116,7 @@ public class BoxheadServer {
     @Path("shellexec")
     @RolesAllowed("Admin")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response doExecShell(@Context HttpServletRequest request){
+    public Response doExecShell(@Context HttpHeaders headers){
         addLog("[INFO] Attempting to run shell command");
 
         //Testing
@@ -125,7 +127,7 @@ public class BoxheadServer {
         }
 
         try{
-            SshConnectionManager.runCommand(request.getHeader("command"));
+            SshConnectionManager.runCommand(headers.getHeaderString("command"));
             addLog("[INFO] Done.. returning");
             return Response.ok(SshConnectionManager.getOutput()).build();
         }catch (Exception e){
@@ -198,7 +200,7 @@ public class BoxheadServer {
             addLog("[INFO] Attempting to reset server");
             new JerseyConfig();
             addLog("[INFO] Attempting to reset faux data");
-            MyServletContextListener.setFauxData();
+            ContextListener.setFauxData();
 
         }catch (Exception e){
             addLog("[ERROR] "+ Arrays.toString(e.getStackTrace()));

@@ -1,24 +1,14 @@
-package nl.hu.bep.webservices;
+package nl.hu.bep.security;
 
 import nl.hu.bep.model.Player;
-import org.apache.catalina.Role;
-import org.glassfish.jersey.server.ContainerRequest;
-import org.glassfish.jersey.server.ContainerResponse;
+import nl.hu.bep.security.BoxSecurityContext;
 
-import javax.ws.rs.NameBinding;
 import javax.ws.rs.container.*;
 import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.ext.Provider;
 import java.io.IOException;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Base64;
-import java.util.List;
 
 /// Niet door Sep Vrij geschreven !!
 ///
@@ -44,10 +34,10 @@ public class CORSFilter implements ContainerRequestFilter, ContainerResponseFilt
             return;
         }
 
-        //
+        //Authentication version 1
         boolean isSecure = request.getSecurityContext().isSecure();
         String scheme = request.getUriInfo().getRequestUri().getScheme();
-        MySecurityContext msc = new MySecurityContext(null, scheme);
+        BoxSecurityContext msc = new BoxSecurityContext(null, scheme);
         String authKey = request.getHeaderString(HttpHeaders.AUTHORIZATION);
 
         try{
@@ -67,12 +57,12 @@ public class CORSFilter implements ContainerRequestFilter, ContainerResponseFilt
 
             if (player != null) {
                 if (player.doAuth(auth_key, auth_username)) {
-                    msc = new MySecurityContext(player, scheme);
+                    msc = new BoxSecurityContext(player, scheme);
                 }
             }
             if (!sessiontoken.equals("")){
                 if (player.getAuth().getSession().checkSession(sessiontoken)){
-                    msc = new MySecurityContext(player, scheme);
+                    msc = new BoxSecurityContext(player, scheme);
                 }
             }
         }catch (Exception e){

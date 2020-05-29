@@ -1,6 +1,6 @@
 package nl.hu.bep.setup;
 
-import nl.hu.bep.webservices.CORSFilter;
+import nl.hu.bep.security.CORSFilter;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 

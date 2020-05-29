@@ -1,4 +1,4 @@
-package nl.hu.bep.webservices;
+package nl.hu.bep.security;
 
 import nl.hu.bep.model.Authentication;
 import nl.hu.bep.model.Player;
@@ -7,11 +7,11 @@ import nl.hu.bep.model.Session;
 import javax.ws.rs.core.SecurityContext;
 import java.security.Principal;
 
-public class MySecurityContext implements SecurityContext {
+public class BoxSecurityContext implements SecurityContext {
     private Player player;
     private String scheme;
 
-    public MySecurityContext(Player player, String scheme) {
+    public BoxSecurityContext(Player player, String scheme) {
         this.player = player;
         this.scheme = scheme;
     }

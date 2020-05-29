@@ -1,12 +1,13 @@
 package nl.hu.bep.model;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.Serializable;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
 
-public class Session {
+public class Session implements Serializable {
     private static final SecureRandom secureRandom = new SecureRandom(); //threadsafe
     private static final Base64.Encoder base64Encoder = Base64.getUrlEncoder(); //threadsafe
 
