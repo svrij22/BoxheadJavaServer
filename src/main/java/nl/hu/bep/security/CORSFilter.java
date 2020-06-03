@@ -33,42 +33,6 @@ public class CORSFilter implements ContainerRequestFilter, ContainerResponseFilt
             request.abortWith(Response.ok().build());
             return;
         }
-
-        //Authentication version 1
-        boolean isSecure = request.getSecurityContext().isSecure();
-        String scheme = request.getUriInfo().getRequestUri().getScheme();
-        BoxSecurityContext msc = new BoxSecurityContext(null, scheme);
-        String authKey = request.getHeaderString(HttpHeaders.AUTHORIZATION);
-
-        try{
-            String[] keys = authKey.split("\\.", -1);
-
-            String auth_key = keys[0];
-
-            String auth_username = new String(base64decoder.decode(keys[1]));
-            String auth_regkey = new String(base64decoder.decode(keys[2]));
-            String sessiontoken = new String(base64decoder.decode(keys[3]));
-
-            Player player = Player.getPlayerByAuthName(auth_username);
-
-            System.out.println("Getting user");
-            System.out.println(auth_username);
-            System.out.println(player);
-
-            if (player != null) {
-                if (player.doAuth(auth_key, auth_username)) {
-                    msc = new BoxSecurityContext(player, scheme);
-                }
-            }
-            if (!sessiontoken.equals("")){
-                if (player.getAuth().getSession().checkSession(sessiontoken)){
-                    msc = new BoxSecurityContext(player, scheme);
-                }
-            }
-        }catch (Exception e){
-            System.out.println("Authorization went wrong");
-        }
-        request.setSecurityContext(msc);
     }
 
     /**

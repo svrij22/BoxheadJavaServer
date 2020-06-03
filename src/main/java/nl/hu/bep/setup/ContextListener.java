@@ -1,14 +1,20 @@
 package nl.hu.bep.setup;
 
-import nl.hu.bep.model.Authentication;
 import nl.hu.bep.model.Message;
 import nl.hu.bep.model.Player;
+import nl.hu.bep.security.Account;
 import nl.hu.bep.webservices.BoxheadServer;
+import nl.hu.bep.webservices.LogResource;
+import nl.hu.bep.webservices.StateWriter;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.Timer;
+
+import static nl.hu.bep.webservices.LogResource.addLog;
 
 @WebListener
 public class ContextListener implements ServletContextListener {
@@ -16,18 +22,28 @@ public class ContextListener implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        System.out.println("initializing application");
-        BoxheadServer.startServer();
-        setFauxData();
+        addLog("[INFO] Starting Server v1.0.0");
+        addLog("[INFO] Attempting Read Server State");
+        startServer();
     }
 
-    public static void setFauxData(){
+    public static void startServer(){
+        //Reading objects
+        LinkedList<Player> players = StateWriter.readObjects();
+        Player.setPlayerData(players);
+
+        //Player
         Player player = new Player("svrij22", "1234", new LinkedHashMap());
-        player.setAuth(new Authentication("crHzIChy6YxU6PbdSTI5ag5M2eNOs5jh4ogPuo4ip0TOwQrbFAk/oPlMy9ze5OxhoZDUP+3vkG/y/6PcAaJCwg==", "svrij22", "Admin"));
+        Account account = new Account("svrij22", "1234", "Admin", player);
 
         Message message = new Message("Test message", "Test", null, player);
         new Message("Server message", "test");
         message.send();
+
+        //Update Timer
+        addLog("[INFO] Setting Update Timer");
+        Timer timer = new Timer();
+        timer.schedule(new LogResource.doPlayerUpdateTimer(), 0, 120 * 1000);
     }
 
     @Override

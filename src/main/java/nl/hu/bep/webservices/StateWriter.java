@@ -14,14 +14,14 @@ public class StateWriter {
     }
 
     public static LinkedList<Player> writeObjects() {
-        try{
+        try {
             System.out.println("[INFO] Mount attempt");
             File yourFile = new File("mount/dataObject.txt");
-            try{
+            try {
                 new File("mount").mkdir();
                 String path = new File("mount").getAbsolutePath();
-                System.out.println("[INFO] Path " + path );
-            }catch (Exception e){
+                System.out.println("[INFO] Path " + path);
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             yourFile.createNewFile(); // if file already exists will do nothing
@@ -30,7 +30,7 @@ public class StateWriter {
             LinkedList<Player> playersList = new LinkedList<>(Player.getPlayers());
             oos.writeObject(playersList);
             return playersList;
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
@@ -41,7 +41,7 @@ public class StateWriter {
     }
 
     public static LinkedList<Player> readObjects() {
-        try{
+        try {
             File yourFile = new File("mount/dataObject.txt");
             if (!yourFile.exists()) return null;
             System.out.println("[INFO] File exists");
@@ -50,7 +50,7 @@ public class StateWriter {
             LinkedList<Player> playersTest = (LinkedList<Player>) ois.readObject();
             ois.close();
             return playersTest;
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
