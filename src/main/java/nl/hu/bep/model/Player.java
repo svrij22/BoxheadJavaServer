@@ -2,9 +2,9 @@ package nl.hu.bep.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import javax.security.auth.Subject;
 import java.io.Serializable;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Player implements Serializable {
     public String username;
@@ -26,8 +26,8 @@ public class Player implements Serializable {
         }
     }
 
-    public static Player[] getRegisteredPlayers() {
-        return (Player[]) players.stream().filter(e->e.hasAccount).toArray();
+    public static ArrayList<Player> getRegisteredPlayers() {
+        return players.stream().filter(e->e.hasAccount).collect(Collectors.toCollection(ArrayList::new));
     }
 
     public void setHasAccount(boolean hasAccount) {

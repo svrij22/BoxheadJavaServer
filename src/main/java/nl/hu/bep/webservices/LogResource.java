@@ -20,14 +20,18 @@ public class LogResource {
     @GET
     @RolesAllowed("Admin")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getServerLog(@Context HttpServletRequest request) {
+    public Response getServerLog() {
         addLog("[INFO] Getting Server Log");
-        return Response.ok(logString.toString()).build();
+        return Response.ok(getLogString()).build();
     }
 
     public static void addLog(String str) {
         System.out.println(str);
         logString.append(str + "\n");
+    }
+
+    public static String getLogString() {
+        return logString.toString();
     }
 
     public static class doPlayerUpdateTimer extends TimerTask {

@@ -1,4 +1,4 @@
-package nl.hu.bep.shopping.tests;
+package nl.hu.bep.tests;
 
 import nl.hu.bep.model.Message;
 import nl.hu.bep.model.Player;

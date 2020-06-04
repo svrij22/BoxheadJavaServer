@@ -59,13 +59,13 @@ public class ShellResource {
     @GET
     @RolesAllowed("Admin")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getShellOutput(@Context HttpServletRequest request) {
+    public Response getShellOutput() {
         addLog("[INFO] Attempting to get shell output");
 
         try {
             return Response.ok(SshConnectionManager.getOutput()).build();
         } catch (Exception e) {
-            return Response.ok("Error getting output " + Arrays.toString(e.getStackTrace())).build();
+            return Response.status(Response.Status.BAD_REQUEST).entity("Error getting output " + Arrays.toString(e.getStackTrace())).build();
         }
     }
 

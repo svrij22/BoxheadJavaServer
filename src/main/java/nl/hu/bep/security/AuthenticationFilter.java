@@ -40,6 +40,5 @@ public class AuthenticationFilter implements ContainerRequestFilter {
             }
         }
         requestContext.setSecurityContext(sc);
-        requestContext.setSecurityContext(new BoxSecurityContext(Account.getAccountByName("svrij22"), ""));
     }
 }

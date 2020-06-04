@@ -53,7 +53,7 @@ public class BoxheadServer {
     @Path("info")
     @RolesAllowed("Admin")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response doCallInfo(@Context HttpServletRequest request) {
+    public Response doCallInfo() {
         addLog("[INFO] Getting Server Info");
         return Response.ok(doRequest("dataFile.json")).build();
     }
@@ -62,7 +62,7 @@ public class BoxheadServer {
     @Path("messages")
     @PermitAll
     @Produces(MediaType.APPLICATION_JSON)
-    public Response doGetMessages(@Context HttpServletRequest request, @Context SecurityContext securityContext) {
+    public Response doGetMessages(@Context SecurityContext securityContext) {
         addLog("[INFO] Getting Message Data Java");
         Account acc = (Account) securityContext.getUserPrincipal();
         if (acc != null) {
@@ -75,8 +75,7 @@ public class BoxheadServer {
     @Path("json")
     @RolesAllowed("Admin")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response doJsonParse(@Context HttpServletRequest request) {
-        addLog("[INFO] Getting Player Json");
+    public Response doJsonParse() {
         String req = doRequest("dataFile.json");
         try {
             Object object1 = JSONValue.parse(req);
@@ -92,7 +91,7 @@ public class BoxheadServer {
     @Path("parsed")
     @RolesAllowed("Admin")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response doParsedGet(@Context HttpServletRequest request) {
+    public Response doParsedGet() {
         addLog("[INFO] Getting Parsed Info");
 
         String req = doRequest("dataFile.json");
@@ -112,7 +111,7 @@ public class BoxheadServer {
     @Path("sockets")
     @RolesAllowed("Admin")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response doSocketGet(@Context HttpServletRequest request) {
+    public Response doSocketGet() {
         addLog("[INFO] Getting Sockets");
 
         String req = doRequest("dataFile.json");

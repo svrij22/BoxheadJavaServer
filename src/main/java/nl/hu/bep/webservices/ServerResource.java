@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 
 import static nl.hu.bep.webservices.LogResource.addLog;
+import static nl.hu.bep.webservices.LogResource.getLogString;
 
 @Path("server")
 @DeclareRoles({"User", "Admin"})
@@ -48,11 +49,12 @@ public class ServerResource {
             new JerseyConfig();
             addLog("[INFO] Attempting to reset faux data");
             ContextListener.startServer();
+            addLog("[INFO] Server reset");
 
         } catch (Exception e) {
             addLog("[ERROR] " + Arrays.toString(e.getStackTrace()));
         }
-        return Response.ok("Data reset").build();
+        return Response.ok(getLogString()).build();
     }
 
     @GET
