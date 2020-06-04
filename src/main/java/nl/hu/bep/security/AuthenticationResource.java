@@ -44,10 +44,10 @@ public class AuthenticationResource {
                                                @FormParam("password") String pw){
         try {
             if (Account.getAccountByName(name) == null) throw new Exception("Gebruiker bestaat niet");
-
             String role = Account.validateLogin(name, pw);
+            if (role == null) throw new Exception("Fout bij het valideren");
+
             String token = createToken(name, role);
-
             HashMap<String, String> map = new HashMap<>();
 
             map.put("JWT", token);
@@ -55,39 +55,7 @@ public class AuthenticationResource {
             map.put("role", role);
 
             return Response.ok(map).build();
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return Response.status(Response.Status.UNAUTHORIZED).build();
-        }
-    }
 
-    @POST
-    @Path("/loginas")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    public Response logInAsUser(@FormParam("username") String name,
-                                @FormParam("password") String pw,
-                                @FormParam("loginas") String nameas) {
-        try {
-            if (Account.getAccountByName(name) == null) throw new Exception("Gebruiker bestaat niet");
-            if (Account.getAccountByName(nameas) == null) throw new Exception("Gebruiker bestaat niet");
-
-            String role = Account.validateLogin(name, pw);
-
-            String token = null;
-
-            assert role != null;
-            if (role.equals("Admin")){
-                token = createToken(nameas, Account.getAccountByName(nameas).getRole());
-            }
-
-            HashMap<String, String> map = new HashMap<>();
-
-            map.put("JWT", token);
-            map.put("name", name);
-            map.put("role", role);
-
-            return Response.ok(map).build();
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return Response.status(Response.Status.UNAUTHORIZED).build();
@@ -102,12 +70,12 @@ public class AuthenticationResource {
                                     @FormParam("password") String pw,
                                     @FormParam("regkey") String rk){
         try {
-            if (Account.getAccountByName(name) != null) throw new Exception("Gebruiker bestaat al");
+            if (Account.getAccountByName(name) != null) return Response.status(Response.Status.NOT_ACCEPTABLE).entity("User already exists").build();
 
             //Get player by reg key
             Player player = Player.getPlayerById(rk);
-            if (player == null) throw new Exception("Speler bestaat niet");
-            if (player.hasAccount) throw new Exception("Speler heeft al een account");
+            if (player == null) return Response.status(Response.Status.NOT_ACCEPTABLE).entity("Player doesn't exist").build();
+            if (player.hasAccount) return Response.status(Response.Status.NOT_ACCEPTABLE).entity("Player already has an account").build();
             player.setHasAccount(true);
 
             //Create new account

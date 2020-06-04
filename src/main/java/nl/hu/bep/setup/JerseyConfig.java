@@ -18,7 +18,6 @@ public class JerseyConfig extends ResourceConfig {
         packages("nl.hu.bep.webservices");
     }
 
-
     @ApplicationPath("/authentication")
     public static class AuthenticationConfig extends ResourceConfig {
         public AuthenticationConfig() {

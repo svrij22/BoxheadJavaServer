@@ -1,6 +1,7 @@
 package nl.hu.bep.webservices;
 
 import nl.hu.bep.model.Player;
+import nl.hu.bep.security.Account;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.ContainerFactory;
@@ -63,9 +64,9 @@ public class BoxheadServer {
     @Produces(MediaType.APPLICATION_JSON)
     public Response doGetMessages(@Context HttpServletRequest request, @Context SecurityContext securityContext) {
         addLog("[INFO] Getting Message Data Java");
-        Player player = (Player) securityContext.getUserPrincipal();
-        if (player != null) {
-            return Response.ok(player.getMessages()).build();
+        Account acc = (Account) securityContext.getUserPrincipal();
+        if (acc != null) {
+            return Response.ok(acc.getPlayer().getMessages()).build();
         }
         return Response.status(409).build();
     }

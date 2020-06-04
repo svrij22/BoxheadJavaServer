@@ -34,7 +34,10 @@ public class ContextListener implements ServletContextListener {
 
         //Player
         Player player = new Player("svrij22", "1234", new LinkedHashMap());
+        player.setHasAccount(true);
         Account account = new Account("svrij22", "1234", "Admin", player);
+
+        Player player2 = new Player("test", "12345", new LinkedHashMap());
 
         Message message = new Message("Test message", "Test", null, player);
         new Message("Server message", "test");

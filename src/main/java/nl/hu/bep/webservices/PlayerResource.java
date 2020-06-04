@@ -62,6 +62,8 @@ public class PlayerResource {
         addLog("[INFO] Created " + Player.players.size() + " players.");
     }
 
+
+    //Returns all java player instances
     @GET
     @RolesAllowed("Admin")
     @Produces(MediaType.APPLICATION_JSON)
@@ -70,6 +72,7 @@ public class PlayerResource {
         return Response.ok(Player.players).build();
     }
 
+    //Returns direct player data JSON from the node server
     @GET
     @Path("json")
     @RolesAllowed("Admin")

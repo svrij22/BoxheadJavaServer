@@ -27,7 +27,10 @@ public class Account implements Principal {
     }
 
     public static Account getAccountByName(String name) {
-        return accounts.stream().filter(e->e.getName().equals(name)).findFirst().orElse(null);
+        return accounts.stream()
+                .filter(a->a.getName().equals(name))
+                .findAny()
+                .orElse(null);
     }
 
     public static ArrayList<?> geefAlle() {
