@@ -29,6 +29,7 @@ public class ContextListener implements ServletContextListener {
     }
 
     public static void startServer(){
+
         //Reading objects
         LinkedList<Player> players = StateWriter.readObjects();
         ServerManager.setPlayerData(players);
@@ -39,6 +40,7 @@ public class ContextListener implements ServletContextListener {
         Account account = new Account("svrij22", "1234", "Admin", player);
         Player player2 = new Player("test", "12345", new LinkedHashMap());
 
+        //Test notifications
         new Notification("Server started up", "The Java server has been started up", Notification.IsBy.admin, true);
         new Notification("Server message", "test1", Notification.IsBy.admin, true);
         new Notification("Server message", "test2", Notification.IsBy.admin, true);

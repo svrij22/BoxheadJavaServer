@@ -26,8 +26,12 @@ public class Player implements Serializable {
         this.hasAccount = hasAccount;
     }
 
-    public void removeNotification(Notification notification){
-        notifications.remove(notification);
+    public boolean removeNotification(Notification notification){
+        return notifications.remove(notification);
+    }
+
+    public void clearNotifications(){
+        notifications = new ArrayList<>();
     }
 
     public void addNotification(Notification notification){

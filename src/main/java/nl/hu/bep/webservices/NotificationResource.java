@@ -34,7 +34,9 @@ public class NotificationResource {
 
         //Retrieve player
         Account acc = (Account) securityContext.getUserPrincipal();
+        if (acc == null) return Response.status(Response.Status.FORBIDDEN).build();
         Player player = (Player) acc.getPlayer();
+        if (player == null) return Response.status(Response.Status.FORBIDDEN).build();
 
         //Clone list and if you are an admin also add the player's responses
         ArrayList<Notification> notifications = (ArrayList<Notification>) player.getNotifications().clone();

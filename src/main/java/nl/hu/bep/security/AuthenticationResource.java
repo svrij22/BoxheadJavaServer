@@ -20,7 +20,7 @@ import java.util.HashMap;
 public class AuthenticationResource {
     final static public Key key = MacProvider.generateKey();
 
-    private String createToken(String username, String role) throws JwtException {
+    public static String createToken(String username, String role) throws JwtException {
         Calendar expiration = Calendar.getInstance();
         expiration.add(Calendar.MINUTE, 30);
 

@@ -32,7 +32,7 @@ public class LogResource {
     @Path("performance")
     @RolesAllowed("Admin")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getPerformanceLog(@Context HttpServletRequest request) {
+    public Response getPerformanceLog() {
         addLog("[INFO] Getting Server Log");
         return Response.ok(ServerManager.getServerPerfLog()).build();
     }
