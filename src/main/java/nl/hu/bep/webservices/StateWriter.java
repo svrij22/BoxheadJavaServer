@@ -1,6 +1,7 @@
 package nl.hu.bep.webservices;
 
 import nl.hu.bep.model.Player;
+import nl.hu.bep.model.ServerManager;
 import org.apache.tomcat.util.http.fileupload.FileUtils;
 
 import java.io.*;
@@ -27,7 +28,7 @@ public class StateWriter {
             yourFile.createNewFile(); // if file already exists will do nothing
             FileOutputStream oFile = new FileOutputStream(yourFile, false);
             ObjectOutputStream oos = new ObjectOutputStream(oFile);
-            LinkedList<Player> playersList = new LinkedList<>(Player.getPlayers());
+            LinkedList<Player> playersList = new LinkedList<>(ServerManager.getPlayers());
             oos.writeObject(playersList);
             return playersList;
         } catch (Exception e) {

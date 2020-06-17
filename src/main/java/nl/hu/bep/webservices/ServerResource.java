@@ -1,8 +1,10 @@
 package nl.hu.bep.webservices;
 
-import nl.hu.bep.model.Player;
+import nl.hu.bep.model.ServerManager;
 import nl.hu.bep.setup.ContextListener;
 import nl.hu.bep.setup.JerseyConfig;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import javax.annotation.security.DeclareRoles;
 import javax.annotation.security.RolesAllowed;
@@ -14,13 +16,39 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 
+import static nl.hu.bep.webservices.BoxheadServer.doRequest;
 import static nl.hu.bep.webservices.LogResource.addLog;
 
 @Path("server")
 @DeclareRoles({"User", "Admin"})
 public class ServerResource {
+
+    public static HashMap<?, ?> getPerformanceItems() throws ParseException {
+
+        //Do request
+        String req = doRequest("dataFile.json");
+
+        //Create JSON Factory
+        BoxheadServer.jsonFactory containerFactory = new BoxheadServer.jsonFactory();
+        LinkedHashMap parsed = (LinkedHashMap) new JSONParser().parse(req, containerFactory);
+
+        //Iterate
+        HashMap<String, Object> hashmap = new HashMap<>();
+        hashmap.put("Ticks", parsed.get("ticks"));
+        hashmap.put("Errors", parsed.get("errors"));
+        hashmap.put("Total packets", parsed.get("packets"));
+        hashmap.put("Unique IP's", parsed.get("uniqueips"));
+        hashmap.put("Playtime", parsed.get("playtime"));
+        hashmap.put("Memory Usage", parsed.get("memusage"));
+        hashmap.put("CPU Usage", parsed.get("cpuusage"));
+        hashmap.put("netusage", parsed.get("netusage"));
+
+        return hashmap;
+    }
 
     @GET
     @Path("reset")
@@ -41,7 +69,7 @@ public class ServerResource {
 
         try {
             addLog("[INFO] Attempting to reset players");
-            Player.setPlayerData(new LinkedList<>());
+            ServerManager.setPlayerData(new LinkedList<>());
             addLog("[INFO] Attempting to remove mounted folder");
             StateWriter.removeObjects();
             addLog("[INFO] Attempting to reset server");
@@ -71,7 +99,7 @@ public class ServerResource {
     public Response tryRead(@Context HttpServletRequest request) {
         addLog("[INFO] Attempting to read");
         LinkedList players = StateWriter.readObjects();
-        Player.setPlayerData(players);
+        ServerManager.setPlayerData(players);
         return Response.ok(players).build();
     }
 }

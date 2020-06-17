@@ -1,8 +1,8 @@
 package nl.hu.bep.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.apache.catalina.Server;
 
-import javax.security.auth.Subject;
 import java.io.Serializable;
 import java.util.*;
 
@@ -13,63 +13,29 @@ public class Player implements Serializable {
     public LinkedHashMap clientdata;
     public boolean hasAccount;
 
-    private ArrayList<Message> messages = new ArrayList<>();
-    public static ArrayList<Player> players = new ArrayList<>();
+    private ArrayList<Notification> notifications = new ArrayList<>();
 
     public Player(String username, String clientid, LinkedHashMap clientdata) {
         this.username = username;
         this.clientid = clientid;
         this.clientdata = clientdata;
-
-        if (!Player.playerExists(this)){
-            players.add(this);
-        }
-    }
-
-    public static Player[] getRegisteredPlayers() {
-        return (Player[]) players.stream().filter(e->e.hasAccount).toArray();
+        ServerManager.addPlayer(this);
     }
 
     public void setHasAccount(boolean hasAccount) {
         this.hasAccount = hasAccount;
     }
 
-    private static boolean playerExists(Player player) {
-        for (Player tmpP : Player.players){
-            if (tmpP.equals(player)) {
-                return true;
-            }
-        }
-        return false;
+    public void removeNotification(Notification notification){
+        notifications.remove(notification);
     }
 
-    public static List<Player> getPlayers() {
-        return players;
+    public void addNotification(Notification notification){
+        if (!notifications.contains(notification) && hasAccount) notifications.add(notification);
     }
 
-    public static void setPlayerData(LinkedList playerData) {
-        System.out.println("[INFO] Setting Player Data");
-        if (playerData != null){
-            players = new ArrayList<>(playerData);
-        }
-    }
-
-    public static Player getPlayerById(String id) {
-        for (Player player : Player.players){
-            if (player.clientid.equals(id)) {
-                return player;
-            }
-        }
-        return null;
-    }
-
-    public static Player getPlayerByName(String id) {
-        for (Player player : Player.players){
-            if (player.username.equals(id)) {
-                return player;
-            }
-        }
-        return null;
+    public ArrayList<Notification> getNotifications(){
+        return notifications;
     }
 
     @Override
@@ -78,7 +44,7 @@ public class Player implements Serializable {
                 "username='" + username + '\'' +
                 ", clientid='" + clientid + '\'' +
                 ", clientdata=" + clientdata +
-                ", messages=" + messages +
+                ", messages=" + notifications +
                 '}';
     }
 
@@ -93,16 +59,5 @@ public class Player implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(clientid);
-    }
-
-    @JsonIgnore
-    public ArrayList<Message> getMessages() {
-        ArrayList<Message> returnMsg = messages;
-        returnMsg.addAll(Message.getMessagesForAll());
-        return returnMsg;
-    }
-
-    public void addMessage(Message message) {
-        this.messages.add(message);
     }
 }
