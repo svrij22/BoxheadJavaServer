@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.impl.crypto.MacProvider;
 import nl.hu.bep.model.Player;
+import nl.hu.bep.model.ServerManager;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -73,7 +74,7 @@ public class AuthenticationResource {
             if (Account.getAccountByName(name) != null) return Response.status(Response.Status.NOT_ACCEPTABLE).entity("User already exists").build();
 
             //Get player by reg key
-            Player player = Player.getPlayerById(rk);
+            Player player = ServerManager.getPlayerByIdOrName(rk);
             if (player == null) return Response.status(Response.Status.NOT_ACCEPTABLE).entity("Player doesn't exist").build();
             if (player.hasAccount) return Response.status(Response.Status.NOT_ACCEPTABLE).entity("Player already has an account").build();
             player.setHasAccount(true);

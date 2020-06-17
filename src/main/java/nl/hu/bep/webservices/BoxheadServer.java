@@ -1,7 +1,9 @@
 package nl.hu.bep.webservices;
 
 import nl.hu.bep.model.Player;
+import nl.hu.bep.model.ServerManager;
 import nl.hu.bep.security.Account;
+import org.apache.catalina.Server;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.ContainerFactory;
@@ -46,36 +48,24 @@ public class BoxheadServer {
     @Produces(MediaType.APPLICATION_JSON)
     public Response doGetAllReg() {
         addLog("[INFO] Requesting registered players");
-        return Response.ok(Player.getRegisteredPlayers()).build();
+        return Response.ok(ServerManager.getRegisteredPlayers()).build();
     }
 
     @GET
     @Path("info")
     @RolesAllowed("Admin")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response doCallInfo() {
+    public Response doCallInfo(@Context HttpServletRequest request) {
         addLog("[INFO] Getting Server Info");
         return Response.ok(doRequest("dataFile.json")).build();
-    }
-
-    @GET
-    @Path("messages")
-    @PermitAll
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response doGetMessages(@Context SecurityContext securityContext) {
-        addLog("[INFO] Getting Message Data Java");
-        Account acc = (Account) securityContext.getUserPrincipal();
-        if (acc != null) {
-            return Response.ok(acc.getPlayer().getMessages()).build();
-        }
-        return Response.status(409).build();
     }
 
     @GET
     @Path("json")
     @RolesAllowed("Admin")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response doJsonParse() {
+    public Response doJsonParse(@Context HttpServletRequest request) {
+        addLog("[INFO] Getting Player Json");
         String req = doRequest("dataFile.json");
         try {
             Object object1 = JSONValue.parse(req);
@@ -91,7 +81,7 @@ public class BoxheadServer {
     @Path("parsed")
     @RolesAllowed("Admin")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response doParsedGet() {
+    public Response doParsedGet(@Context HttpServletRequest request) {
         addLog("[INFO] Getting Parsed Info");
 
         String req = doRequest("dataFile.json");
@@ -111,7 +101,7 @@ public class BoxheadServer {
     @Path("sockets")
     @RolesAllowed("Admin")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response doSocketGet() {
+    public Response doSocketGet(@Context HttpServletRequest request) {
         addLog("[INFO] Getting Sockets");
 
         String req = doRequest("dataFile.json");

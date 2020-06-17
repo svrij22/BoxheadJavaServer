@@ -1,11 +1,12 @@
 package nl.hu.bep.setup;
 
-import nl.hu.bep.model.Message;
+import nl.hu.bep.model.Notification;
 import nl.hu.bep.model.Player;
+import nl.hu.bep.model.ServerManager;
 import nl.hu.bep.security.Account;
-import nl.hu.bep.webservices.BoxheadServer;
 import nl.hu.bep.webservices.LogResource;
 import nl.hu.bep.webservices.StateWriter;
+import org.apache.catalina.Server;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -30,7 +31,7 @@ public class ContextListener implements ServletContextListener {
     public static void startServer(){
         //Reading objects
         LinkedList<Player> players = StateWriter.readObjects();
-        Player.setPlayerData(players);
+        ServerManager.setPlayerData(players);
 
         //Player
         Player player = new Player("svrij22", "1234", new LinkedHashMap());
@@ -38,9 +39,11 @@ public class ContextListener implements ServletContextListener {
         Account account = new Account("svrij22", "1234", "Admin", player);
         Player player2 = new Player("test", "12345", new LinkedHashMap());
 
-        Message message = new Message("Test message", "Test", null, player);
-        new Message("Server message", "test");
-        message.send();
+        new Notification("Server started up", "The Java server has been started up", Notification.IsBy.admin, true);
+        new Notification("Server message", "test1", Notification.IsBy.admin, true);
+        new Notification("Server message", "test2", Notification.IsBy.admin, true);
+        new Notification("Server message", "test3", Notification.IsBy.admin, true);
+        new Notification("Player message", "test", Notification.IsBy.player, true);
 
         //Update Timer
         addLog("[INFO] Setting Update Timer");

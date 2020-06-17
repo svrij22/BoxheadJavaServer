@@ -4,18 +4,18 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>nl.hu.bep.shopping</groupId>
+    <groupId>nl.hu.bep.boxhead</groupId>
     <artifactId>BoxheadJavaServer</artifactId>
     <version>2.0</version>
     <packaging>war</packaging>
     <name>BoxheadJavaServer</name>
     <!-- @FIXME setup your own project or remove this link -->
-    <url>https://twitch.tv/josvanreenen</url>
+    <url>http://svrij.nl</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.source>14</maven.compiler.source>
+        <maven.compiler.target>14</maven.compiler.target>
     </properties>
 
     <dependencies>
@@ -126,12 +126,6 @@
         <!--      <artifactId>azure-storage-blob</artifactId>-->
         <!--      <version>12.6.0</version>-->
         <!--    </dependency>-->
-
-        <!--    <dependency> for authentication later on -->
-        <!--      <groupId>io.jsonwebtoken</groupId>-->
-        <!--      <artifactId>jjwt</artifactId>-->
-        <!--      <version>0.9.1</version>-->
-        <!--    </dependency>-->
     </dependencies>
 
     <build>
@@ -148,5 +142,27 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals><goal>copy</goal></goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.heroku</groupId>
+                                    <artifactId>webapp-runner</artifactId>
+                                    <version>9.0.30.0</version>
+                                    <destFileName>webapp-runner.jar</destFileName>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
 </project>
