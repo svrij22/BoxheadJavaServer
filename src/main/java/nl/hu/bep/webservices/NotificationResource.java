@@ -4,11 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import nl.hu.bep.model.Notification;
 import nl.hu.bep.model.Player;
 import nl.hu.bep.security.Account;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.JSONParser;
 
 import javax.annotation.security.PermitAll;
+import javax.print.attribute.standard.Media;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -69,6 +71,28 @@ public class NotificationResource {
         if (acc.getRole().equals("Admin")) notificationArrayList.addAll(Notification.getAdminNotif());
 
         //Retrieve notification list
+        return Response.ok(notificationArrayList).build();
+    }
+
+    @POST
+    @PermitAll
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response sendMessage(@Context SecurityContext securityContext, @FormParam("title") String title, @FormParam("body") String body) {
+        addLog("[INFO] Sending message");
+
+        //Retrieve player
+        Account acc = (Account) securityContext.getUserPrincipal();
+        String role = acc.getRole();
+
+        //Create new notification
+        Notification.IsBy isBy = (role.equals("Admin")) ? Notification.IsBy.admin : Notification.IsBy.player;
+        new Notification(title, body, isBy, true);
+
+        //Get list again
+        ArrayList<Notification> notificationArrayList = (ArrayList<Notification>) acc.getPlayer().getNotifications().clone();
+        if (acc.getRole().equals("Admin")) notificationArrayList.addAll(Notification.getAdminNotif());
+
+        //Return notifications
         return Response.ok(notificationArrayList).build();
     }
 

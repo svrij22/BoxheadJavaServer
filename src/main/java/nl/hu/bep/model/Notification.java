@@ -16,6 +16,7 @@ public class Notification implements Serializable{
     private String body;
     private LocalDateTime date;
     private String dateStr;
+    private long dateNum;
     private boolean isRead = false;
 
     public enum IsBy{
@@ -34,6 +35,7 @@ public class Notification implements Serializable{
         //Date
         this.date = LocalDateTime.now();
         this.dateStr = new SimpleDateFormat("MM-dd HH:mm").format(new Date());
+        this.dateNum = new Date().getTime();
 
         //Admin msg or player msg
         if (!admin_notif.contains(this) && isBy.equals(IsBy.player)) admin_notif.add(this);
@@ -89,6 +91,14 @@ public class Notification implements Serializable{
 
     public void setDateStr(String dateStr) {
         this.dateStr = dateStr;
+    }
+
+    public long getDateNum() {
+        return dateNum;
+    }
+
+    public void setDateNum(long dateNum) {
+        this.dateNum = dateNum;
     }
 
     @Override
