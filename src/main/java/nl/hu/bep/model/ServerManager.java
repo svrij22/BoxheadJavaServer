@@ -23,8 +23,12 @@ public class ServerManager implements Serializable {
         return serverPerfLog;
     }
 
-    public ServerManager getManager(){
+    public static ServerManager getManager(){
         return (serverManager != null) ? serverManager : new ServerManager();
+    }
+
+    public static void setManager(ServerManager serverManager) {
+        ServerManager.serverManager = serverManager;
     }
 
     public static void addPlayer(Player player){

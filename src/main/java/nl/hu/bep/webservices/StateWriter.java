@@ -9,15 +9,10 @@ import java.util.LinkedList;
 
 public class StateWriter {
 
-    public static void main(String[] arg) throws IOException {
-        writeObjects();
-        readObjects();
-    }
-
-    public static LinkedList<Player> writeObjects() {
+    public static boolean writeObjects(String fname, Object object) {
         try {
             System.out.println("[INFO] Mount attempt");
-            File yourFile = new File("mount/dataObject.txt");
+            File yourFile = new File("mount/" + fname + ".txt");
             try {
                 new File("mount").mkdir();
                 String path = new File("mount").getAbsolutePath();
@@ -28,29 +23,28 @@ public class StateWriter {
             yourFile.createNewFile(); // if file already exists will do nothing
             FileOutputStream oFile = new FileOutputStream(yourFile, false);
             ObjectOutputStream oos = new ObjectOutputStream(oFile);
-            LinkedList<Player> playersList = new LinkedList<>(ServerManager.getPlayers());
-            oos.writeObject(playersList);
-            return playersList;
+            oos.writeObject(object);
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+        return false;
     }
 
     public static void removeObjects() throws IOException {
         FileUtils.cleanDirectory(new File("mount"));
     }
 
-    public static LinkedList<Player> readObjects() {
+    public static Object readObjects(String fname) {
         try {
-            File yourFile = new File("mount/dataObject.txt");
+            File yourFile = new File("mount/" + fname + ".txt");
             if (!yourFile.exists()) return null;
             System.out.println("[INFO] File exists");
             FileInputStream fis = new FileInputStream(yourFile);
             ObjectInputStream ois = new ObjectInputStream(fis);
-            LinkedList<Player> playersTest = (LinkedList<Player>) ois.readObject();
+            Object object = ois.readObject();
             ois.close();
-            return playersTest;
+            return object;
         } catch (Exception e) {
             e.printStackTrace();
         }

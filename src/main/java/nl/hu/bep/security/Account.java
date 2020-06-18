@@ -26,6 +26,8 @@ public class Account implements Principal {
         return player;
     }
 
+
+
     public static Account getAccountByName(String name) {
         return accounts.stream()
                 .filter(a->a.getName().equals(name))
@@ -33,7 +35,11 @@ public class Account implements Principal {
                 .orElse(null);
     }
 
-    public static ArrayList<?> geefAlle() {
+    public static void setAccounts(ArrayList<Account> accounts) {
+        Account.accounts = accounts;
+    }
+
+    public static ArrayList<Account> geefAlle() {
         return accounts;
     }
 

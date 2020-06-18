@@ -29,7 +29,6 @@ import static nl.hu.bep.webservices.LogResource.getLogString;
 public class ServerResource {
 
     public static HashMap<?, ?> getPerformanceItems() throws ParseException {
-
         //Do request
         String req = doRequest("dataFile.json");
 
@@ -85,23 +84,5 @@ public class ServerResource {
         return Response.ok(getLogString()).build();
     }
 
-    @GET
-    @Path("save")
-    @RolesAllowed("Admin")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response trySave(@Context HttpServletRequest request) {
-        addLog("[INFO] Attempting to save");
-        return Response.ok(StateWriter.writeObjects()).build();
-    }
-
-    @GET
-    @Path("read")
-    @RolesAllowed("Admin")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response tryRead(@Context HttpServletRequest request) {
-        addLog("[INFO] Attempting to read");
-        LinkedList players = StateWriter.readObjects();
-        ServerManager.setPlayerData(players);
-        return Response.ok(players).build();
-    }
+    //TODO /save and /read have been removed, update log
 }

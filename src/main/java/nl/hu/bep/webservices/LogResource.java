@@ -1,6 +1,7 @@
 package nl.hu.bep.webservices;
 
 import nl.hu.bep.model.ServerManager;
+import nl.hu.bep.setup.ContextListener;
 
 import javax.annotation.security.DeclareRoles;
 import javax.annotation.security.RolesAllowed;
@@ -46,13 +47,16 @@ public class LogResource {
         return logString.toString();
     }
 
-    public static class doPlayerUpdateTimer extends TimerTask {
+    public static class doTimerTask extends TimerTask {
         public void run() {
             try {
                 addLog("[INFO] Doing Timer Task");
                 PlayerResource.doPlayerUpdate();
+                addLog("[INFO] Saving Performance");
                 HashMap<?, ?> hashMap = ServerResource.getPerformanceItems();
                 ServerManager.writeServerPerfLog(hashMap);
+                addLog("[INFO] Saving Items");
+                ContextListener.saveObjects();
             } catch (Exception e) {
                 e.printStackTrace();
             }

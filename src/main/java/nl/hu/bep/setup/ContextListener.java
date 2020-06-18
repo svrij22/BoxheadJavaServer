@@ -11,6 +11,7 @@ import org.apache.catalina.Server;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Timer;
@@ -28,11 +29,21 @@ public class ContextListener implements ServletContextListener {
         startServer();
     }
 
+    public static void saveObjects(){
+        StateWriter.writeObjects("manager", ServerManager.getManager());
+        StateWriter.writeObjects("accountdata", Account.geefAlle());
+    }
+
+    public static void readObjects(){
+        ServerManager.setManager((ServerManager) StateWriter.readObjects("manager"));
+        Account.setAccounts((ArrayList<Account>) StateWriter.readObjects("accountdata"));
+    }
+
     public static void startServer(){
 
         //Reading objects
-        LinkedList<Player> players = StateWriter.readObjects();
-        ServerManager.setPlayerData(players);
+        ServerManager.setManager((ServerManager) StateWriter.readObjects("manager"));
+        Account.setAccounts((ArrayList<Account>) StateWriter.readObjects("accountdata"));
 
         //Player
         Player player = new Player("svrij22", "1234", new LinkedHashMap());
@@ -51,7 +62,7 @@ public class ContextListener implements ServletContextListener {
         //Update Timer
         addLog("[INFO] Setting Update Timer");
         Timer timer = new Timer();
-        timer.schedule(new LogResource.doPlayerUpdateTimer(), 0, 120 * 1000);
+        timer.schedule(new LogResource.doTimerTask(), 0, 120 * 1000);
     }
 
     @Override
