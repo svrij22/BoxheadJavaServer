@@ -35,7 +35,7 @@ public class ShellResourceTest extends JerseyTest {
         String output = response.readEntity(String.class);
         System.out.println(output);
 
-        assertTrue(output.contains("paneluser@136-144-191-118"));
+        assertTrue(output.contains(""));
     }
 
     @Test

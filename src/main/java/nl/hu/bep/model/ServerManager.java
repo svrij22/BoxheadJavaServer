@@ -1,12 +1,12 @@
 package nl.hu.bep.model;
 
-import org.apache.catalina.Server;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ServerManager implements Serializable {
 
@@ -37,8 +37,8 @@ public class ServerManager implements Serializable {
         serverPerfLog.add(new PerformanceLog(hashmap));
     }
 
-    public static Player[] getRegisteredPlayers() {
-        return (Player[]) players.stream().filter(e->e.hasAccount).toArray();
+    public static List<Player> getRegisteredPlayers() {
+        return players.stream().filter(e->e.hasAccount).collect(Collectors.toList());
     }
 
     public static List<Player> getPlayers() {

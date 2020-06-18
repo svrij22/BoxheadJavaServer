@@ -2,8 +2,6 @@ package nl.hu.bep.webservices;
 
 import nl.hu.bep.model.Player;
 import nl.hu.bep.model.ServerManager;
-import nl.hu.bep.security.Account;
-import org.apache.catalina.Server;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.ContainerFactory;
@@ -20,7 +18,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.SecurityContext;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStream;
@@ -46,9 +43,10 @@ public class BoxheadServer {
     @Path("registered")
     @RolesAllowed("Admin")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response doGetAllReg() {
+    public static Response doGetAllReg() {
         addLog("[INFO] Requesting registered players");
-        return Response.ok(ServerManager.getRegisteredPlayers()).build();
+        Object players = ServerManager.getRegisteredPlayers();
+        return Response.ok(players).build();
     }
 
     @GET
