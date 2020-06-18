@@ -3,10 +3,11 @@ package nl.hu.bep.security;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import nl.hu.bep.model.Player;
 
+import java.io.Serializable;
 import java.security.Principal;
 import java.util.ArrayList;
 
-public class Account implements Principal {
+public class Account implements Principal, Serializable {
     private static ArrayList<Account> accounts = new ArrayList<>();
 
     private String name;
@@ -25,8 +26,6 @@ public class Account implements Principal {
     public Player getPlayer() {
         return player;
     }
-
-
 
     public static Account getAccountByName(String name) {
         return accounts.stream()
@@ -55,5 +54,29 @@ public class Account implements Principal {
 
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getRol() {
+        return rol;
+    }
+
+    public void setRol(String rol) {
+        this.rol = rol;
+    }
+
+    public void setPlayer(Player player) {
+        this.player = player;
     }
 }

@@ -35,15 +35,16 @@ public class ContextListener implements ServletContextListener {
     }
 
     public static void readObjects(){
-        ServerManager.setManager((ServerManager) StateWriter.readObjects("manager"));
-        Account.setAccounts((ArrayList<Account>) StateWriter.readObjects("accountdata"));
+        var readObject =  StateWriter.readObjects("manager");
+        if (readObject != null) ServerManager.setManager((ServerManager) readObject);
+        readObject =  StateWriter.readObjects("accountdata");
+        if (readObject != null) Account.setAccounts((ArrayList<Account>)readObject);
     }
 
     public static void startServer(){
 
         //Reading objects
-        ServerManager.setManager((ServerManager) StateWriter.readObjects("manager"));
-        Account.setAccounts((ArrayList<Account>) StateWriter.readObjects("accountdata"));
+        readObjects();
 
         //Player
         Player player = new Player("svrij22", "1234", new LinkedHashMap());
@@ -62,7 +63,7 @@ public class ContextListener implements ServletContextListener {
         //Update Timer
         addLog("[INFO] Setting Update Timer");
         Timer timer = new Timer();
-        timer.schedule(new LogResource.doTimerTask(), 0, 120 * 1000);
+        timer.schedule(new LogResource.doTimerTask(), 0, 5 * 1000);
     }
 
     @Override
