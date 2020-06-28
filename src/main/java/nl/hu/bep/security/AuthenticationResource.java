@@ -6,6 +6,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.impl.crypto.MacProvider;
 import nl.hu.bep.model.Player;
 import nl.hu.bep.model.ServerManager;
+import nl.hu.bep.webservices.StateWriter;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -83,6 +84,10 @@ public class AuthenticationResource {
             new Account(name, pw, "User", player);
             String token = createToken(name, "User");
             SimpleEntry<String, String> JWT = new SimpleEntry<>("JWT", token);
+
+            //Save all users;
+            StateWriter.writeObjects("accountdata", Account.geefAlle());
+
             return Response.ok(JWT).build();
 
         } catch (Exception e) {

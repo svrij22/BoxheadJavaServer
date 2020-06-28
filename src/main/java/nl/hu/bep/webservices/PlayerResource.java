@@ -2,22 +2,24 @@ package nl.hu.bep.webservices;
 
 import nl.hu.bep.model.Player;
 import nl.hu.bep.model.ServerManager;
+import nl.hu.bep.security.Account;
 import org.apache.catalina.Server;
 import org.json.simple.parser.JSONParser;
 
 import javax.annotation.security.DeclareRoles;
+import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 
-import static nl.hu.bep.model.ServerManager.players;
 import static nl.hu.bep.webservices.BoxheadServer.doRequest;
 import static nl.hu.bep.webservices.LogResource.addLog;
 
@@ -31,10 +33,10 @@ public class PlayerResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response doPlayerJavaUpdate(@Context HttpServletRequest request) {
         addLog("[INFO] Updating Player Info");
-
         //Do player update
         try {
             doPlayerUpdate();
+            ArrayList<Player> players = ServerManager.getManager().players;
             return Response.ok(players).build();
         } catch (Exception e) {
             addLog("[ERROR] " + Arrays.toString(e.getStackTrace()));
@@ -43,9 +45,7 @@ public class PlayerResource {
     }
 
     public static void doPlayerUpdate() throws Exception {
-
         String req = doRequest("playerData.json");
-
         StringBuilder stringBuilder = new StringBuilder();
         BoxheadServer.jsonFactory containerFactory = new BoxheadServer.jsonFactory();
         LinkedList parsed = (LinkedList) new JSONParser().parse(req, containerFactory);
@@ -57,20 +57,27 @@ public class PlayerResource {
             LinkedHashMap tmpPlayer = (LinkedHashMap) player;
             String username = (String) tmpPlayer.get("username");
             String clientid = String.valueOf(tmpPlayer.get("clientid"));
-            new Player(username, clientid, tmpPlayer);
+            Player.updatePlayer(username, clientid, tmpPlayer);
         }
 
-        addLog("[INFO] Created " + players.size() + " players.");
+        ArrayList<Player> players = ServerManager.getManager().players;
+        addLog("[INFO] Total: " + players.size() + " players.");
     }
 
-
-    //Returns all java player instances
+    //Returns all java player instances or account instance
     @GET
-    @RolesAllowed("Admin")
+    @PermitAll
     @Produces(MediaType.APPLICATION_JSON)
-    public Response doGetPlayers(@Context HttpServletRequest request) {
-        addLog("[INFO] Getting Players Info");
-        return Response.ok(players).build();
+    public Response doGetPlayers(@Context SecurityContext securityContext) {
+        if (securityContext.isUserInRole("Admin")){
+            addLog("[INFO] Getting Players Info");
+            ArrayList<Player> players = ServerManager.getManager().players;
+            return Response.ok(players).build();
+        }else{
+            addLog("[INFO] Getting Single player Info");
+            Account account = (Account) securityContext.getUserPrincipal();
+            return Response.ok(account.getPlayer()).build();
+        }
     }
 
     //Returns direct player data JSON from the node server
@@ -115,7 +122,7 @@ public class PlayerResource {
             Player playerGet = ServerManager.getPlayerByIdOrName(id);
             if (playerGet != null) {
                 ServerManager.removePlayer(playerGet);
-                return Response.ok(ServerManager.getPlayers()).build();
+                return Response.ok(ServerManager.getManager().players).build();
             }
         } catch (Exception e) {
             addLog("[ERROR] " + Arrays.toString(e.getStackTrace()));

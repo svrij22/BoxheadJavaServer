@@ -10,8 +10,8 @@ import java.util.stream.Stream;
 
 public class ServerManager implements Serializable {
 
-    public static ArrayList<Player> players = new ArrayList<>();
-    public static ArrayList<PerformanceLog> serverPerfLog = new ArrayList<>();
+    public ArrayList<Player> players = new ArrayList<>();
+    public ArrayList<PerformanceLog> serverPerfLog = new ArrayList<>();
     public static ServerManager serverManager;
 
 
@@ -20,7 +20,7 @@ public class ServerManager implements Serializable {
     }
 
     public static ArrayList<PerformanceLog> getServerPerfLog() {
-        return serverPerfLog;
+        return ServerManager.getManager().serverPerfLog;
     }
 
     public static ServerManager getManager(){
@@ -32,42 +32,42 @@ public class ServerManager implements Serializable {
     }
 
     public static void addPlayer(Player player){
-        if (!players.contains(player)){
-            players.add(player);
+        if (!ServerManager.getManager().players.contains(player)){
+            ServerManager.getManager().players.add(player);
         }
     }
 
     public static void writeServerPerfLog(HashMap<?, ?> hashmap){
-        serverPerfLog.add(new PerformanceLog(hashmap));
+        ServerManager.getManager().serverPerfLog.add(new PerformanceLog(hashmap));
     }
 
     public static List<Player> getRegisteredPlayers() {
-        return players.stream().filter(e->e.hasAccount).collect(Collectors.toList());
+        return ServerManager.getManager().players.stream().filter(e->e.hasAccount).collect(Collectors.toList());
     }
 
-    public static List<Player> getPlayers() {
-        return players;
+    public List<Player> getPlayers() {
+        return ServerManager.getManager().players;
     }
 
     public static void removePlayer(Player player){
-        players.remove(player);
+        ServerManager.getManager().players.remove(player);
     }
 
 
     public static void setPlayerData(LinkedList playerData) {
         System.out.println("[INFO] Setting Player Data");
         if (playerData != null){
-            players = new ArrayList<>(playerData);
+            ServerManager.getManager().players = new ArrayList<>(playerData);
         }
     }
 
     public static Player getPlayerByIdOrName(String searchstr) {
-        for (Player player : players){
+        for (Player player : ServerManager.getManager().players){
             if (player.clientid.equals(searchstr)) {
                 return player;
             }
         }
-        for (Player player : players){
+        for (Player player : ServerManager.getManager().players){
             if (player.username.equals(searchstr)) {
                 return player;
             }

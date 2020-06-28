@@ -40,7 +40,7 @@ public class Notification implements Serializable{
         //Admin msg or player msg
         if (!admin_notif.contains(this) && isBy.equals(IsBy.player)) admin_notif.add(this);
         if (isForAll && isBy.equals(IsBy.admin))
-            for (Player player : ServerManager.getPlayers()) {
+            for (Player player : ServerManager.getManager().players) {
                 player.addNotification(this);
             }
     }

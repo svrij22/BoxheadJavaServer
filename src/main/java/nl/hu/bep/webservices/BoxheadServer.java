@@ -33,13 +33,6 @@ import static nl.hu.bep.webservices.LogResource.addLog;
 public class BoxheadServer {
 
     @GET
-    @PermitAll
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response doTest() {
-        return Response.ok("test").build();
-    }
-
-    @GET
     @Path("registered")
     @RolesAllowed("Admin")
     @Produces(MediaType.APPLICATION_JSON)
@@ -51,7 +44,7 @@ public class BoxheadServer {
 
     @GET
     @Path("info")
-    @RolesAllowed("Admin")
+    @PermitAll
     @Produces(MediaType.APPLICATION_JSON)
     public Response doCallInfo(@Context HttpServletRequest request) {
         addLog("[INFO] Getting Server Info");

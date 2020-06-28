@@ -22,6 +22,15 @@ public class Player implements Serializable {
         ServerManager.addPlayer(this);
     }
 
+    public static void updatePlayer(String username, String clientid, LinkedHashMap clientdata){
+        Player player = ServerManager.getPlayerByIdOrName(clientid);
+        if (player != null){
+            player.clientdata = clientdata;
+        }else{
+            new Player(username, clientid, clientdata);
+        }
+    }
+
     public void setHasAccount(boolean hasAccount) {
         this.hasAccount = hasAccount;
     }

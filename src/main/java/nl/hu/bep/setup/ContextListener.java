@@ -63,7 +63,7 @@ public class ContextListener implements ServletContextListener {
         //Update Timer
         addLog("[INFO] Setting Update Timer");
         Timer timer = new Timer();
-        timer.schedule(new LogResource.doTimerTask(), 0, 5 * 1000);
+        timer.schedule(new LogResource.doTimerTask(), 0, 30 * 1000);
     }
 
     @Override
