@@ -44,7 +44,9 @@ public class Player implements Serializable {
     }
 
     public void addNotification(Notification notification){
-        if (!notifications.contains(notification) && hasAccount) notifications.add(notification);
+        if (!notifications.contains(notification))
+            if (hasAccount)
+                notifications.add(notification);
     }
 
     public ArrayList<Notification> getNotifications(){

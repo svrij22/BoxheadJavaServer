@@ -3,6 +3,7 @@ package nl.hu.bep.webservices;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import nl.hu.bep.model.Notification;
 import nl.hu.bep.model.Player;
+import nl.hu.bep.model.ServerManager;
 import nl.hu.bep.security.Account;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.json.simple.JSONObject;
@@ -39,11 +40,10 @@ public class NotificationResource {
         if (player == null) return Response.status(Response.Status.FORBIDDEN).build();
 
         //Clone list and if you are an admin also add the player's responses
-        ArrayList<Notification> notifications = (ArrayList<Notification>) player.getNotifications().clone();
-        if (acc.getRole().equals("Admin")) notifications.addAll(Notification.getAdminNotif());
+        ArrayList<Notification> notificationArrayList = this.getPersonalNotifications(acc);
 
         //Return 200 OK
-        return Response.ok(notifications).build();
+        return Response.ok(notificationArrayList).build();
     }
 
     @DELETE
@@ -62,25 +62,29 @@ public class NotificationResource {
 
         //Retrieve player
         Account acc = (Account) securityContext.getUserPrincipal();
-        Player player = (Player) acc.getPlayer();
 
         //Remove from lists
-        player.getNotifications().remove(notification);
-        Notification.getAdminNotif().remove(notification);
+        ServerManager.getPlayerByIdOrName(acc.getPlayer().clientid).getNotifications().remove(notification);
+        if (securityContext.isUserInRole("Admin"))
+            Notification.getAdminNotif().remove(notification);
 
         //Get list again
-        ArrayList<Notification> notificationArrayList = (ArrayList<Notification>) player.getNotifications().clone();
-        if (acc.getRole().equals("Admin")) notificationArrayList.addAll(Notification.getAdminNotif());
+        ArrayList<Notification> notificationArrayList = this.getPersonalNotifications(acc);
 
         //Retrieve notification list
         return Response.ok(notificationArrayList).build();
+    }
+
+    public ArrayList<Notification> getPersonalNotifications(Account acc){
+        ArrayList<Notification> notificationArrayList = (ArrayList<Notification>) ServerManager.getPlayerByIdOrName(acc.getPlayer().clientid).getNotifications().clone();
+        if (acc.getRole().equals("Admin")) notificationArrayList.addAll(Notification.getAdminNotif());
+        return notificationArrayList;
     }
 
     @POST
     @PermitAll
     @Produces(MediaType.APPLICATION_JSON)
     public Response sendMessage(@Context SecurityContext securityContext, @FormParam("title") String title, @FormParam("body") String body) {
-        addLog("[INFO] Sending message");
 
         //Retrieve player
         Account acc = (Account) securityContext.getUserPrincipal();
@@ -90,9 +94,8 @@ public class NotificationResource {
         Notification.IsBy isBy = (role.equals("Admin")) ? Notification.IsBy.admin : Notification.IsBy.player;
         new Notification(title, body, isBy, true);
 
-        //Get list again
-        ArrayList<Notification> notificationArrayList = (ArrayList<Notification>) acc.getPlayer().getNotifications().clone();
-        if (acc.getRole().equals("Admin")) notificationArrayList.addAll(Notification.getAdminNotif());
+        //Ik weet niet waarom, maar het Account object heeft een duplicate van het echte object.
+        ArrayList<Notification> notificationArrayList = this.getPersonalNotifications(acc);
 
         //Return notifications
         return Response.ok(notificationArrayList).build();
@@ -106,10 +109,9 @@ public class NotificationResource {
 
         //Retrieve player
         Account acc = (Account) securityContext.getUserPrincipal();
-        Player player = (Player) acc.getPlayer();
 
         //Retrieve all notifications
-        ArrayList<Notification> notifications = (ArrayList<Notification>) player.getNotifications();
+        ArrayList<Notification> notifications = ServerManager.getPlayerByIdOrName(acc.getPlayer().clientid).getNotifications();
         if (acc.getRole().equals("Admin")) notifications.addAll(Notification.getAdminNotif());
 
         //Put all on read
