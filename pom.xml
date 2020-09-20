@@ -4,13 +4,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>nl.hu.bep.boxhead</groupId>
-    <artifactId>BoxheadJavaServer</artifactId>
+    <groupId>svrij.zorgdemoserver</groupId>
+    <artifactId>ZorgLocatieServer</artifactId>
     <version>2.0</version>
     <packaging>war</packaging>
-    <name>BoxheadJavaServer</name>
-    <!-- @FIXME setup your own project or remove this link -->
-    <url>http://svrij.nl</url>
+    <name>ZorgLocatieServer</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
