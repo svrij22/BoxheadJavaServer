@@ -1,5 +1,8 @@
 package sep.api.webservices;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,6 +26,8 @@ public class MarketController {
     public static String getMarkets(@RequestParam String lat, @RequestParam String lon) throws IOException {
 
         try{
+
+            /*Getting from url*/
             URL url = new URL(String.format("https://api.geoapify.com/v2/places?categories=commercial.supermarket&filter=circle:%s,%s,1000&bias=proximity:%s,%s&limit=20&apiKey=dc7d307677ac46fb897d60032983c238", lon, lat, lon, lat));
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("GET");
@@ -33,7 +38,33 @@ public class MarketController {
                 content.append(inputLine);
             }
             in.close();
-            return content.toString();
+
+            /*Parsing json*/
+            JSONParser jsonParser = new JSONParser();
+            JSONObject obj = (JSONObject) jsonParser.parse(content.toString());
+            JSONArray arr = (JSONArray) obj.get("features");
+
+            StringBuilder newJson = new StringBuilder();
+
+            //Start
+            newJson.append("[");
+
+            arr.forEach( a -> {
+                newJson.append("{");
+
+                var tempObj = (JSONObject) a;
+                var coords = ((JSONObject) tempObj.get("geometry")).get("coordinates");
+                newJson.append("\"coordinates\":").append(coords);
+
+                newJson.append("}");
+            });
+
+            //End
+            newJson.append("]");
+
+            System.out.println(newJson.toString());
+
+            return newJson.toString();
         }catch (Exception e){
             return Arrays.toString(e.getStackTrace());
         }
