@@ -44,28 +44,28 @@ public class MarketController {
             JSONObject obj = (JSONObject) jsonParser.parse(content.toString());
             JSONArray arr = (JSONArray) obj.get("features");
 
-            StringBuilder newJson = new StringBuilder();
 
             //Start
-            newJson.append("[");
+            JSONArray newJsonList = new JSONArray();
 
             arr.forEach( a -> {
-                newJson.append("{");
-
                 var tempObj = (JSONObject) a;
                 var coords = ((JSONObject) tempObj.get("geometry")).get("coordinates");
-                newJson.append("\"coordinates\":").append(coords);
+                String strCoords = coords.toString();
+                strCoords = strCoords.replace("[", "");
+                strCoords = strCoords.replace("]", "");
 
-                newJson.append("}");
+                JSONObject newObj = new JSONObject();
+                newObj.put("lon", strCoords.split(",")[0]);
+                newObj.put("lat", strCoords.split(",")[1]);
+
+                newJsonList.add(newObj);
             });
 
-            //End
-            newJson.append("]");
+            return newJsonList.toJSONString();
 
-            System.out.println(newJson.toString());
-
-            return newJson.toString();
         }catch (Exception e){
+            e.printStackTrace();
             return Arrays.toString(e.getStackTrace());
         }
     }

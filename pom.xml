@@ -9,6 +9,7 @@
     <version>2.0</version>
     <packaging>war</packaging>
     <name>LocationAPI</name>
+
     <!-- @FIXME setup your own project or remove this link -->
     <url>http://svrij.nl</url>
 
