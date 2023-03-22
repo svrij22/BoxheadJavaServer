@@ -69,7 +69,7 @@
         <dependency> <!-- specifying we actually use catalina as well -->
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat-catalina</artifactId>
-            <version>9.0.31</version>
+            <version>9.0.72</version>
             <scope>provided</scope>
         </dependency>
         <dependency><!-- for handling json -->
